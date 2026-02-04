@@ -22,6 +22,19 @@ import { Objeto, Categoria } from '../../core/models';
 
     <section class="section">
       <div class="container">
+        <div class="acciones-ciudadano">
+          <a routerLink="/mis-objetos" [queryParams]="{accion: 'perdido'}" class="accion-card perdido">
+            <span class="accion-icono">🔍</span>
+            <h3>He perdido un objeto</h3>
+            <p>Registra tu objeto perdido y te avisaremos si aparece</p>
+          </a>
+          <a routerLink="/mis-objetos" [queryParams]="{accion: 'encontrado'}" class="accion-card encontrado">
+            <span class="accion-icono">📦</span>
+            <h3>He encontrado un objeto</h3>
+            <p>Entrega el objeto para que su dueño pueda recuperarlo</p>
+          </a>
+        </div>
+
         <h2>Ultimos objetos encontrados</h2>
         <div class="objetos-grid">
           @for (objeto of objetosRecientes; track objeto.id) {
@@ -297,6 +310,54 @@ import { Objeto, Categoria } from '../../core/models';
     .btn-small {
       padding: 8px 16px;
       font-size: 0.875rem;
+    }
+
+    .acciones-ciudadano {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .accion-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .accion-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .accion-card.perdido {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .accion-card.encontrado {
+      background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    }
+
+    .accion-icono {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .accion-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    .accion-card p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
     }
   `]
 })

@@ -20,8 +20,7 @@ import { AuthService } from '../../../core/services/auth.service';
           <a routerLink="/subastas" routerLinkActive="active">Subastas</a>
 
           @if (authService.isAuthenticated()) {
-            <a routerLink="/reportar-perdido" routerLinkActive="active">Reportar perdido</a>
-            <a routerLink="/mis-objetos" routerLinkActive="active">Mis objetos</a>
+            <a routerLink="/mis-objetos" routerLinkActive="active">Mi zona</a>
 
             @if (authService.isAdmin()) {
               <a routerLink="/admin" routerLinkActive="active" class="admin-link">Admin</a>
