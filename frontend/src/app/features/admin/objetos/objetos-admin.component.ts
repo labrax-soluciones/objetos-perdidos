@@ -11,9 +11,9 @@ interface Objeto {
   tipo: string;
   estado: string;
   categoria?: { nombre: string };
-  ubicacion?: { codigo: string };
+  ubicacionAlmacen?: { codigo: string };
   createdAt: string;
-  fotos?: { thumbnailUrl: string }[];
+  fotoPrincipal?: { thumbnailUrl: string };
 }
 
 @Component({
@@ -81,8 +81,8 @@ interface Objeto {
                 <tr>
                   <td class="td-objeto">
                     <div class="objeto-cell">
-                      @if (objeto.fotos && objeto.fotos.length > 0) {
-                        <img [src]="objeto.fotos[0].thumbnailUrl" [alt]="objeto.titulo">
+                      @if (objeto.fotoPrincipal) {
+                        <img [src]="objeto.fotoPrincipal.thumbnailUrl" [alt]="objeto.titulo">
                       } @else {
                         <div class="no-img">📦</div>
                       }
@@ -101,7 +101,7 @@ interface Objeto {
                       {{ objeto.estado }}
                     </span>
                   </td>
-                  <td>{{ objeto.ubicacion?.codigo || '-' }}</td>
+                  <td>{{ objeto.ubicacionAlmacen?.codigo || '-' }}</td>
                   <td>{{ objeto.createdAt | date:'dd/MM/yyyy' }}</td>
                   <td>
                     <div class="acciones">
@@ -364,9 +364,9 @@ export class ObjetosAdminComponent implements OnInit {
     params.append('page', this.pagina().toString());
 
     this.api.get<any>(`/admin/objetos?${params}`).subscribe({
-      next: (data) => {
-        this.objetos.set(data.items || []);
-        this.totalPaginas.set(data.totalPages || 1);
+      next: (response) => {
+        this.objetos.set(response.data || []);
+        this.totalPaginas.set(response.meta?.pages || 1);
         this.loading.set(false);
       },
       error: () => {
