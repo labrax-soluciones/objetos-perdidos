@@ -247,14 +247,15 @@ interface Ubicacion {
 
             <div class="form-row">
               <div class="form-group">
-                <label for="almacen">Almacen</label>
+                <label for="almacen">Almacen *</label>
                 <select
                   id="almacen"
                   [(ngModel)]="selectedAlmacenId"
                   name="almacenId"
                   (change)="onAlmacenChange()"
+                  required
                 >
-                  <option value="">Sin asignar</option>
+                  <option value="">Selecciona almacen</option>
                   @for (almacen of almacenes(); track almacen.id) {
                     <option [value]="almacen.id">{{ almacen.nombre }}</option>
                   }
@@ -262,12 +263,13 @@ interface Ubicacion {
               </div>
 
               <div class="form-group">
-                <label for="ubicacion">Ubicacion</label>
+                <label for="ubicacion">Ubicacion *</label>
                 <select
                   id="ubicacion"
                   [(ngModel)]="formData.ubicacionAlmacenId"
                   name="ubicacionAlmacenId"
                   [disabled]="!selectedAlmacenId"
+                  required
                 >
                   <option value="">Selecciona ubicacion</option>
                   @for (ub of ubicacionesFiltradas(); track ub.id) {
@@ -713,8 +715,9 @@ export class ObjetoFormComponent implements OnInit {
     this.error.set('');
 
     if (!this.formData.titulo || !this.formData.categoriaId || !this.formData.fechaHallazgo ||
-        !this.formData.direccionHallazgo || !this.formData.halladorNombre || !this.formData.halladorTelefono) {
-      this.error.set('Por favor, completa los campos obligatorios (titulo, categoria, fecha, lugar, nombre y telefono del hallador)');
+        !this.formData.direccionHallazgo || !this.formData.halladorNombre || !this.formData.halladorTelefono ||
+        !this.selectedAlmacenId || !this.formData.ubicacionAlmacenId) {
+      this.error.set('Por favor, completa todos los campos obligatorios');
       return;
     }
 
