@@ -1,0 +1,32 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}{{ notificacion.titulo }}{% endblock %}
+
+{% block content %}
+<h2>Hola {{ usuario.nombre }},</h2>
+
+<div class="info-box">
+    <strong>{{ notificacion.titulo }}</strong>
+    <p>{{ notificacion.mensaje }}</p>
+</div>
+
+{% if notificacion.data.objetoId is defined %}
+<p>
+    <a href="{{ app.request.schemeAndHttpHost }}/objeto/{{ notificacion.data.objetoId }}" class="button">
+        Ver objeto
+    </a>
+</p>
+{% endif %}
+
+{% if notificacion.data.solicitudId is defined %}
+<p>
+    <a href="{{ app.request.schemeAndHttpHost }}/mis-objetos" class="button">
+        Ver mis solicitudes
+    </a>
+</p>
+{% endif %}
+
+<p>Puedes acceder a tu cuenta para ver mas detalles y gestionar tus objetos y solicitudes.</p>
+
+<p>Saludos,<br>El equipo del Portal de Objetos Perdidos</p>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Verifica tu email{% endblock %}
+
+{% block content %}
+<h2>Hola {{ usuario.nombre }},</h2>
+
+<p>Gracias por registrarte en el Portal de Objetos Perdidos.</p>
+
+<p>Para completar tu registro y verificar tu cuenta, por favor haz clic en el siguiente boton:</p>
+
+<p style="text-align: center;">
+    <a href="{{ url }}" class="button">Verificar mi email</a>
+</p>
+
+<p>Si el boton no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+
+<div class="info-box">
+    <code>{{ url }}</code>
+</div>
+
+<p>Si no has creado esta cuenta, puedes ignorar este mensaje.</p>
+
+<p>Saludos,<br>El equipo del Portal de Objetos Perdidos</p>
+{% endblock %}
