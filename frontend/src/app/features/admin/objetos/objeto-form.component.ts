@@ -176,14 +176,69 @@ interface Ubicacion {
             </div>
 
             <div class="form-group">
-              <label for="direccionHallazgo">Direccion / Lugar de hallazgo</label>
+              <label for="direccionHallazgo">Direccion / Lugar de hallazgo *</label>
               <input
                 type="text"
                 id="direccionHallazgo"
                 [(ngModel)]="formData.direccionHallazgo"
                 name="direccionHallazgo"
                 placeholder="Calle, zona o punto de referencia"
+                required
               >
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>Datos del hallador</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="halladorNombre">Nombre completo *</label>
+                <input
+                  type="text"
+                  id="halladorNombre"
+                  [(ngModel)]="formData.halladorNombre"
+                  name="halladorNombre"
+                  placeholder="Nombre y apellidos de quien encuentra el objeto"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="halladorTelefono">Telefono *</label>
+                <input
+                  type="tel"
+                  id="halladorTelefono"
+                  [(ngModel)]="formData.halladorTelefono"
+                  name="halladorTelefono"
+                  placeholder="Telefono de contacto"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="halladorDni">DNI / NIE</label>
+                <input
+                  type="text"
+                  id="halladorDni"
+                  [(ngModel)]="formData.halladorDni"
+                  name="halladorDni"
+                  placeholder="Documento de identidad (opcional)"
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="halladorObservaciones">Observaciones</label>
+              <textarea
+                id="halladorObservaciones"
+                [(ngModel)]="formData.halladorObservaciones"
+                name="halladorObservaciones"
+                rows="3"
+                placeholder="Circunstancias del hallazgo, estado del objeto, etc."
+              ></textarea>
             </div>
           </div>
 
@@ -542,6 +597,10 @@ export class ObjetoFormComponent implements OnInit {
     fechaHallazgo: '',
     horaHallazgo: '',
     direccionHallazgo: '',
+    halladorNombre: '',
+    halladorTelefono: '',
+    halladorDni: '',
+    halladorObservaciones: '',
     ubicacionAlmacenId: '',
     estado: 'REGISTRADO'
   };
@@ -577,6 +636,10 @@ export class ObjetoFormComponent implements OnInit {
           fechaHallazgo: objeto.fechaHallazgo?.split('T')[0] || '',
           horaHallazgo: objeto.horaHallazgo || '',
           direccionHallazgo: objeto.direccionHallazgo || '',
+          halladorNombre: objeto.halladorNombre || '',
+          halladorTelefono: objeto.halladorTelefono || '',
+          halladorDni: objeto.halladorDni || '',
+          halladorObservaciones: objeto.halladorObservaciones || '',
           ubicacionAlmacenId: objeto.ubicacionAlmacen?.id?.toString() || '',
           estado: objeto.estado
         };
@@ -642,8 +705,9 @@ export class ObjetoFormComponent implements OnInit {
   guardar() {
     this.error.set('');
 
-    if (!this.formData.titulo || !this.formData.categoriaId || !this.formData.fechaHallazgo) {
-      this.error.set('Por favor, completa los campos obligatorios');
+    if (!this.formData.titulo || !this.formData.categoriaId || !this.formData.fechaHallazgo ||
+        !this.formData.direccionHallazgo || !this.formData.halladorNombre || !this.formData.halladorTelefono) {
+      this.error.set('Por favor, completa los campos obligatorios (titulo, categoria, fecha, lugar, nombre y telefono del hallador)');
       return;
     }
 

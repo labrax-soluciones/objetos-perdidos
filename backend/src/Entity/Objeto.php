@@ -105,6 +105,22 @@ class Objeto
     #[Groups(['objeto:read', 'objeto:write'])]
     private ?string $direccionHallazgo = null;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    #[Groups(['objeto:read', 'objeto:write'])]
+    private ?string $halladorNombre = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['objeto:read', 'objeto:write'])]
+    private ?string $halladorTelefono = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['objeto:read', 'objeto:write'])]
+    private ?string $halladorDni = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['objeto:read', 'objeto:write'])]
+    private ?string $halladorObservaciones = null;
+
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['objeto:read', 'objeto:write'])]
     private ?float $latitud = null;
@@ -350,6 +366,50 @@ class Objeto
     public function setDireccionHallazgo(?string $direccionHallazgo): static
     {
         $this->direccionHallazgo = $direccionHallazgo;
+        return $this;
+    }
+
+    public function getHalladorNombre(): ?string
+    {
+        return $this->halladorNombre;
+    }
+
+    public function setHalladorNombre(?string $halladorNombre): static
+    {
+        $this->halladorNombre = $halladorNombre;
+        return $this;
+    }
+
+    public function getHalladorTelefono(): ?string
+    {
+        return $this->halladorTelefono;
+    }
+
+    public function setHalladorTelefono(?string $halladorTelefono): static
+    {
+        $this->halladorTelefono = $halladorTelefono;
+        return $this;
+    }
+
+    public function getHalladorDni(): ?string
+    {
+        return $this->halladorDni;
+    }
+
+    public function setHalladorDni(?string $halladorDni): static
+    {
+        $this->halladorDni = $halladorDni;
+        return $this;
+    }
+
+    public function getHalladorObservaciones(): ?string
+    {
+        return $this->halladorObservaciones;
+    }
+
+    public function setHalladorObservaciones(?string $halladorObservaciones): static
+    {
+        $this->halladorObservaciones = $halladorObservaciones;
         return $this;
     }
 
