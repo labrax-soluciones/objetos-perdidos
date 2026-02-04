@@ -658,8 +658,8 @@ export class ObjetoFormComponent implements OnInit {
   }
 
   private loadCategorias() {
-    this.api.get<Categoria[]>('/categorias').subscribe({
-      next: (categorias) => this.categorias.set(categorias)
+    this.api.get<any>('/categorias').subscribe({
+      next: (response) => this.categorias.set(response.data || response)
     });
   }
 
