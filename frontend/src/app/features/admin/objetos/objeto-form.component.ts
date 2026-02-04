@@ -426,6 +426,13 @@ interface Ubicacion {
       border: 1px solid #ddd;
       border-radius: 6px;
       font-size: 1rem;
+      color: #333;
+      background-color: white;
+    }
+
+    select option {
+      color: #333;
+      background-color: white;
     }
 
     input:focus, select:focus, textarea:focus {
