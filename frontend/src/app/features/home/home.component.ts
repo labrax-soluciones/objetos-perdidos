@@ -373,9 +373,12 @@ export class HomeComponent implements OnInit {
   }
 
   private loadObjetos() {
-    this.objetoService.getObjetos({ limit: 8 }).subscribe({
+    this.objetoService.getObjetos({ limit: 20 }).subscribe({
       next: (response) => {
-        this.objetosRecientes = response.data;
+        // Filter out objects without title and photos, take first 10
+        this.objetosRecientes = (response.data || [])
+          .filter(obj => obj.titulo && obj.fotoPrincipal)
+          .slice(0, 10);
       },
       error: (err) => console.error('Error loading objects:', err)
     });
