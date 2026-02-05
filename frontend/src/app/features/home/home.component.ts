@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ObjetoService } from '../../core/services/objeto.service';
 import { Objeto, Categoria } from '../../core/models';
 
@@ -35,7 +36,7 @@ import { Objeto, Categoria } from '../../core/models';
           </a>
         </div>
 
-        <h2>Ultimos objetos encontrados</h2>
+        <h2>Últimos objetos encontrados</h2>
         <div class="objetos-grid">
           @for (objeto of objetosRecientes; track objeto.id) {
             <div class="objeto-card">
@@ -363,25 +364,28 @@ import { Objeto, Categoria } from '../../core/models';
 })
 export class HomeComponent implements OnInit {
   private objetoService = inject(ObjetoService);
+  private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   objetosRecientes: Objeto[] = [];
   categorias: Categoria[] = [];
 
   ngOnInit() {
-    this.loadObjetos();
+    this.loadObjetosFetch();
     this.loadCategorias();
   }
 
-  private loadObjetos() {
-    this.objetoService.getObjetos({ limit: 20 }).subscribe({
-      next: (response) => {
-        // Filter out objects without title and photos, take first 10
-        this.objetosRecientes = (response.data || [])
-          .filter(obj => obj.titulo && obj.fotoPrincipal)
-          .slice(0, 10);
-      },
-      error: (err) => console.error('Error loading objects:', err)
-    });
+  private async loadObjetosFetch() {
+    try {
+      const response = await fetch('http://localhost:8088/api/objetos?limit=20');
+      const data = await response.json();
+      this.objetosRecientes = (data.data || [])
+        .filter((obj: any) => obj.titulo && obj.fotoPrincipal)
+        .slice(0, 10);
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Error loading objects:', err);
+    }
   }
 
   private loadCategorias() {

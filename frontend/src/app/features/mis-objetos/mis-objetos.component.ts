@@ -148,7 +148,7 @@ interface Categoria {
                   <div class="objeto-card">
                     <div class="objeto-imagen">
                       @if (objeto.fotoPrincipal?.thumbnailUrl) {
-                        <img [src]="objeto.fotoPrincipal.thumbnailUrl" [alt]="objeto.titulo">
+                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo">
                       } @else {
                         <div class="no-imagen">🔍</div>
                       }
@@ -264,7 +264,7 @@ interface Categoria {
                   <div class="objeto-card">
                     <div class="objeto-imagen">
                       @if (objeto.fotoPrincipal?.thumbnailUrl) {
-                        <img [src]="objeto.fotoPrincipal.thumbnailUrl" [alt]="objeto.titulo">
+                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo">
                       } @else {
                         <div class="no-imagen">📦</div>
                       }
