@@ -4,98 +4,129 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ObjetoService } from '../../core/services/objeto.service';
 import { Objeto, Categoria, ObjetosFilter } from '../../core/models';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-galeria',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, InputTextModule, SelectModule, DatePickerModule, ButtonModule, ToastModule, FloatLabelModule],
+  providers: [MessageService],
   template: `
-    <div class="galeria-container">
-      <div class="filtros-panel">
-        <h3>Filtros</h3>
+    <p-toast />
+    <div class="flex gap-8 p-8 max-w-7xl mx-auto max-md:flex-col">
+      <div class="w-72 flex-shrink-0 bg-gray-50 p-6 rounded-lg h-fit sticky top-8 max-md:w-full max-md:static">
+        <h3 class="mb-6 font-semibold text-lg">Filtros</h3>
 
-        <div class="filtro-group">
-          <label>Buscar</label>
-          <input
-            type="text"
-            [(ngModel)]="filtros.q"
-            placeholder="Buscar..."
-            (keyup.enter)="buscar()"
-          >
+        <div class="mb-4">
+          <p-floatlabel>
+            <input
+              pInputText
+              id="buscar"
+              [(ngModel)]="filtros.q"
+              (keyup.enter)="buscar()"
+              class="w-full"
+            />
+            <label for="buscar">Buscar</label>
+          </p-floatlabel>
         </div>
 
-        <div class="filtro-group">
-          <label>Categoria</label>
-          <select [(ngModel)]="filtros.categoria" (change)="buscar()">
-            <option [ngValue]="undefined">Todas</option>
-            @for (cat of categorias(); track cat.id) {
-              <option [ngValue]="cat.id">{{ cat.nombre }}</option>
-            }
-          </select>
+        <div class="mb-4">
+          <p-floatlabel>
+            <p-select
+              id="categoria"
+              [(ngModel)]="filtros.categoria"
+              [options]="categoriasOptions()"
+              optionLabel="nombre"
+              optionValue="id"
+              (onChange)="buscar()"
+              class="w-full"
+              styleClass="w-full"
+            />
+            <label for="categoria">Categoria</label>
+          </p-floatlabel>
         </div>
 
-        <div class="filtro-group">
-          <label>Color</label>
-          <input
-            type="text"
-            [(ngModel)]="filtros.color"
-            placeholder="Ej: rojo, azul..."
-          >
+        <div class="mb-4">
+          <p-floatlabel>
+            <input
+              pInputText
+              id="color"
+              [(ngModel)]="filtros.color"
+              class="w-full"
+            />
+            <label for="color">Color</label>
+          </p-floatlabel>
         </div>
 
-        <div class="filtro-group">
-          <label>Fecha desde</label>
-          <input
-            type="date"
-            [(ngModel)]="filtros.fechaDesde"
-          >
+        <div class="mb-4">
+          <p-floatlabel>
+            <p-datepicker
+              id="fechaDesde"
+              [(ngModel)]="fechaDesdeDate"
+              dateFormat="dd/mm/yy"
+              styleClass="w-full"
+              [showIcon]="true"
+            />
+            <label for="fechaDesde">Fecha desde</label>
+          </p-floatlabel>
         </div>
 
-        <div class="filtro-group">
-          <label>Fecha hasta</label>
-          <input
-            type="date"
-            [(ngModel)]="filtros.fechaHasta"
-          >
+        <div class="mb-4">
+          <p-floatlabel>
+            <p-datepicker
+              id="fechaHasta"
+              [(ngModel)]="fechaHastaDate"
+              dateFormat="dd/mm/yy"
+              styleClass="w-full"
+              [showIcon]="true"
+            />
+            <label for="fechaHasta">Fecha hasta</label>
+          </p-floatlabel>
         </div>
 
-        <button class="btn btn-primary" (click)="buscar()">Buscar</button>
-        <button class="btn btn-outline" (click)="limpiarFiltros()">Limpiar</button>
+        <p-button label="Buscar" (onClick)="buscar()" styleClass="w-full mb-2" />
+        <p-button label="Limpiar" (onClick)="limpiarFiltros()" severity="secondary" [outlined]="true" styleClass="w-full" />
       </div>
 
-      <div class="resultados">
-        <div class="resultados-header">
-          <h2>Objetos encontrados</h2>
-          <span class="total">{{ total() }} resultados</span>
+      <div class="flex-1">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Objetos encontrados</h2>
+          <span class="text-gray-500">{{ total() }} resultados</span>
         </div>
 
         @if (loading()) {
-          <div class="loading">Cargando...</div>
+          <div class="text-center py-12 text-gray-500">Cargando...</div>
         } @else if (objetos().length === 0) {
-          <div class="no-results">
+          <div class="text-center py-12 text-gray-500">
             <p>No se encontraron objetos con los filtros seleccionados.</p>
           </div>
         } @else {
-          <div class="objetos-grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @for (objeto of objetos(); track objeto.id) {
-              <div class="objeto-card">
-                <a [routerLink]="['/objeto', objeto.id]">
-                  <div class="objeto-imagen">
+              <div class="bg-white rounded-lg overflow-hidden shadow-md transition-transform duration-200 hover:-translate-y-1">
+                <a [routerLink]="['/objeto', objeto.id]" class="block text-inherit">
+                  <div class="h-40 bg-gray-100">
                     @if (objeto.fotoPrincipal?.thumbnailUrl) {
-                      <img [src]="objeto.fotoPrincipal!.thumbnailUrl" [alt]="objeto.titulo">
+                      <img [src]="objeto.fotoPrincipal!.thumbnailUrl" [alt]="objeto.titulo" class="w-full h-full object-cover">
                     } @else {
-                      <div class="no-imagen">Sin imagen</div>
+                      <div class="h-full flex items-center justify-center text-gray-400">Sin imagen</div>
                     }
                   </div>
-                  <div class="objeto-info">
-                    <h3>{{ objeto.titulo }}</h3>
+                  <div class="p-4">
+                    <h3 class="mb-2 font-semibold text-sm">{{ objeto.titulo }}</h3>
                     @if (objeto.categoria) {
-                      <span class="categoria">{{ objeto.categoria.nombre }}</span>
+                      <span class="inline-block bg-gray-200 px-2 py-0.5 rounded text-xs mr-2">{{ objeto.categoria.nombre }}</span>
                     }
                     @if (objeto.color) {
-                      <span class="color">{{ objeto.color }}</span>
+                      <span class="inline-block bg-gray-200 px-2 py-0.5 rounded text-xs">{{ objeto.color }}</span>
                     }
-                    <p class="fecha">{{ objeto.createdAt | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-gray-500 text-xs mt-2">{{ objeto.createdAt | date:'dd/MM/yyyy' }}</p>
                   </div>
                 </a>
               </div>
@@ -103,219 +134,34 @@ import { Objeto, Categoria, ObjetosFilter } from '../../core/models';
           </div>
 
           @if (totalPages() > 1) {
-            <div class="paginacion">
-              <button
+            <div class="flex justify-center items-center gap-4 mt-8">
+              <p-button
+                label="Anterior"
                 [disabled]="currentPage() <= 1"
-                (click)="cambiarPagina(currentPage() - 1)"
-              >
-                Anterior
-              </button>
+                (onClick)="cambiarPagina(currentPage() - 1)"
+                severity="secondary"
+                [outlined]="true"
+              />
               <span>Pagina {{ currentPage() }} de {{ totalPages() }}</span>
-              <button
+              <p-button
+                label="Siguiente"
                 [disabled]="currentPage() >= totalPages()"
-                (click)="cambiarPagina(currentPage() + 1)"
-              >
-                Siguiente
-              </button>
+                (onClick)="cambiarPagina(currentPage() + 1)"
+                severity="secondary"
+                [outlined]="true"
+              />
             </div>
           }
         }
       </div>
     </div>
   `,
-  styles: [`
-    .galeria-container {
-      display: flex;
-      gap: 2rem;
-      padding: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .filtros-panel {
-      width: 280px;
-      flex-shrink: 0;
-      background: #f8f9fa;
-      padding: 1.5rem;
-      border-radius: 8px;
-      height: fit-content;
-      position: sticky;
-      top: 2rem;
-    }
-
-    .filtros-panel h3 {
-      margin: 0 0 1.5rem;
-    }
-
-    .filtro-group {
-      margin-bottom: 1rem;
-    }
-
-    .filtro-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      font-size: 0.875rem;
-    }
-
-    .filtro-group input,
-    .filtro-group select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-
-    .resultados {
-      flex: 1;
-    }
-
-    .resultados-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .resultados-header h2 {
-      margin: 0;
-    }
-
-    .total {
-      color: #666;
-    }
-
-    .objetos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .objeto-card {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-
-    .objeto-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .objeto-card a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .objeto-imagen {
-      height: 160px;
-      background: #f0f0f0;
-    }
-
-    .objeto-imagen img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .no-imagen {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-    }
-
-    .objeto-info {
-      padding: 1rem;
-    }
-
-    .objeto-info h3 {
-      margin: 0 0 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    .categoria, .color {
-      display: inline-block;
-      background: #e0e0e0;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      margin-right: 0.5rem;
-    }
-
-    .fecha {
-      color: #666;
-      font-size: 0.8rem;
-      margin: 0.5rem 0 0;
-    }
-
-    .paginacion {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .paginacion button {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .paginacion button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .loading, .no-results {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      margin-top: 0.5rem;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #ddd;
-      color: #333;
-    }
-
-    @media (max-width: 768px) {
-      .galeria-container {
-        flex-direction: column;
-      }
-
-      .filtros-panel {
-        width: 100%;
-        position: static;
-      }
-    }
-  `]
+  styles: []
 })
 export class GaleriaComponent implements OnInit {
   private objetoService = inject(ObjetoService);
   private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
 
   objetos = signal<Objeto[]>([]);
   categorias = signal<Categoria[]>([]);
@@ -324,9 +170,14 @@ export class GaleriaComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
 
+  fechaDesdeDate: Date | null = null;
+  fechaHastaDate: Date | null = null;
+
   filtros: ObjetosFilter = {
     limit: 20
   };
+
+  categoriasOptions = signal<{id: number | undefined, nombre: string}[]>([]);
 
   ngOnInit() {
     this.loadCategorias();
@@ -360,17 +211,36 @@ export class GaleriaComponent implements OnInit {
     this.objetoService.getCategorias().subscribe({
       next: (categorias) => {
         this.categorias.set(categorias);
+        this.categoriasOptions.set([
+          { id: undefined, nombre: 'Todas' },
+          ...categorias.map(c => ({ id: c.id, nombre: c.nombre }))
+        ]);
       }
     });
   }
 
   buscar() {
+    // Convert dates to string format
+    if (this.fechaDesdeDate) {
+      const date = this.fechaDesdeDate;
+      this.filtros.fechaDesde = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    } else {
+      this.filtros.fechaDesde = undefined;
+    }
+    if (this.fechaHastaDate) {
+      const date = this.fechaHastaDate;
+      this.filtros.fechaHasta = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    } else {
+      this.filtros.fechaHasta = undefined;
+    }
     this.currentPage.set(1);
     this.loadObjetos();
   }
 
   limpiarFiltros() {
     this.filtros = { limit: 20 };
+    this.fechaDesdeDate = null;
+    this.fechaHastaDate = null;
     this.currentPage.set(1);
     this.loadObjetos();
   }

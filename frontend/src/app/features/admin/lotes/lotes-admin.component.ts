@@ -19,23 +19,23 @@ interface Lote {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="lotes-container">
-      <div class="header">
-        <h1>Gestion de lotes</h1>
-        <button class="btn btn-primary" (click)="abrirModalLote()">
+    <div class="p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="m-0 text-2xl font-bold text-gray-800">Gestion de lotes</h1>
+        <button class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark" (click)="abrirModalLote()">
           + Nuevo lote
         </button>
       </div>
 
-      <div class="filtros">
-        <select [(ngModel)]="filtroTipo" (change)="cargarLotes()">
+      <div class="flex gap-4 mb-6">
+        <select [(ngModel)]="filtroTipo" (change)="cargarLotes()" class="px-4 py-2 border border-gray-300 rounded text-sm">
           <option value="">Todos los tipos</option>
           <option value="SUBASTA">Subasta</option>
           <option value="DONACION">Donacion</option>
           <option value="RECICLAJE">Reciclaje</option>
           <option value="DESTRUCCION">Destruccion</option>
         </select>
-        <select [(ngModel)]="filtroEstado" (change)="cargarLotes()">
+        <select [(ngModel)]="filtroEstado" (change)="cargarLotes()" class="px-4 py-2 border border-gray-300 rounded text-sm">
           <option value="">Todos los estados</option>
           <option value="PREPARACION">En preparacion</option>
           <option value="PUBLICADO">Publicado</option>
@@ -45,72 +45,80 @@ interface Lote {
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando lotes...</div>
+        <div class="text-center py-12 text-gray-500 bg-white rounded-lg">Cargando lotes...</div>
       } @else if (lotes().length === 0) {
-        <div class="empty-state">
+        <div class="text-center py-12 text-gray-500 bg-white rounded-lg">
           <p>No hay lotes {{ filtroTipo || filtroEstado ? 'con estos filtros' : '' }}</p>
         </div>
       } @else {
-        <div class="lotes-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (lote of lotes(); track lote.id) {
-            <div class="lote-card">
-              <div class="lote-header">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+              <div class="flex justify-between p-6 bg-gray-50">
                 <div>
-                  <span class="lote-codigo">{{ lote.codigo }}</span>
-                  <h3>{{ lote.nombre }}</h3>
+                  <span class="text-xs text-gray-400">{{ lote.codigo }}</span>
+                  <h3 class="m-0 mt-1 text-lg font-semibold">{{ lote.nombre }}</h3>
                 </div>
-                <div class="badges">
-                  <span class="tipo-badge" [class]="'tipo-' + lote.tipo.toLowerCase()">
+                <div class="flex flex-col gap-1">
+                  <span class="px-2 py-1 rounded text-xs font-semibold text-center"
+                    [class]="lote.tipo === 'SUBASTA' ? 'bg-blue-100 text-blue-800' :
+                             lote.tipo === 'DONACION' ? 'bg-green-100 text-green-800' :
+                             lote.tipo === 'RECICLAJE' ? 'bg-orange-100 text-orange-800' :
+                             'bg-red-100 text-red-800'">
                     {{ lote.tipo }}
                   </span>
-                  <span class="estado-badge" [class]="'estado-' + lote.estado.toLowerCase()">
+                  <span class="px-2 py-1 rounded text-xs font-semibold text-center"
+                    [class]="lote.estado === 'PREPARACION' ? 'bg-yellow-100 text-yellow-800' :
+                             lote.estado === 'PUBLICADO' ? 'bg-blue-100 text-blue-800' :
+                             lote.estado === 'EN_CURSO' ? 'bg-green-100 text-green-800' :
+                             'bg-gray-100 text-gray-600'">
                     {{ lote.estado }}
                   </span>
                 </div>
               </div>
 
-              <div class="lote-body">
-                <div class="objetos-preview">
+              <div class="p-6">
+                <div class="flex gap-2 mb-4">
                   @for (objeto of lote.objetos.slice(0, 4); track objeto.id) {
-                    <div class="objeto-thumb">
+                    <div class="w-12 h-12 rounded bg-gray-100 overflow-hidden flex items-center justify-center">
                       @if (objeto.fotos?.length) {
-                        <img [src]="objeto.fotos[0].thumbnailUrl" alt="">
+                        <img [src]="objeto.fotos[0].thumbnailUrl" alt="" class="w-full h-full object-cover">
                       } @else {
                         <span>📦</span>
                       }
                     </div>
                   }
                   @if (lote.objetos.length > 4) {
-                    <div class="objeto-thumb mas">
+                    <div class="w-12 h-12 rounded bg-primary text-white font-semibold text-sm flex items-center justify-center">
                       +{{ lote.objetos.length - 4 }}
                     </div>
                   }
                 </div>
 
-                <div class="lote-info">
-                  <p><strong>{{ lote.objetos.length }}</strong> objeto(s)</p>
-                  <p>Creado: {{ lote.fechaCreacion | date:'dd/MM/yyyy' }}</p>
+                <div>
+                  <p class="m-0 mb-1 text-sm text-gray-500"><strong>{{ lote.objetos.length }}</strong> objeto(s)</p>
+                  <p class="m-0 mb-1 text-sm text-gray-500">Creado: {{ lote.fechaCreacion | date:'dd/MM/yyyy' }}</p>
                   @if (lote.fechaCierre) {
-                    <p>Cierre: {{ lote.fechaCierre | date:'dd/MM/yyyy' }}</p>
+                    <p class="m-0 text-sm text-gray-500">Cierre: {{ lote.fechaCierre | date:'dd/MM/yyyy' }}</p>
                   }
                 </div>
               </div>
 
-              <div class="lote-acciones">
+              <div class="flex gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
                 @if (lote.estado === 'PREPARACION') {
-                  <button class="btn btn-sm" (click)="gestionarObjetos(lote)">
+                  <button class="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50" (click)="gestionarObjetos(lote)">
                     Gestionar objetos
                   </button>
-                  <button class="btn btn-sm btn-primary" (click)="publicarLote(lote)">
+                  <button class="px-3 py-1.5 text-xs bg-primary text-white rounded hover:bg-primary-dark" (click)="publicarLote(lote)">
                     Publicar
                   </button>
                 }
                 @if (lote.estado === 'PUBLICADO' && lote.tipo === 'SUBASTA') {
-                  <button class="btn btn-sm btn-primary" (click)="iniciarSubasta(lote)">
+                  <button class="px-3 py-1.5 text-xs bg-primary text-white rounded hover:bg-primary-dark" (click)="iniciarSubasta(lote)">
                     Iniciar subasta
                   </button>
                 }
-                <button class="btn-icon" (click)="editarLote(lote)">✏️</button>
+                <button class="bg-transparent border-none cursor-pointer text-base opacity-60 hover:opacity-100" (click)="editarLote(lote)">✏️</button>
               </div>
             </div>
           }
@@ -118,18 +126,18 @@ interface Lote {
       }
 
       @if (modalLote()) {
-        <div class="modal-overlay" (click)="cerrarModal()">
-          <div class="modal" (click)="$event.stopPropagation()">
-            <h2>{{ loteEditar ? 'Editar' : 'Nuevo' }} lote</h2>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" (click)="cerrarModal()">
+          <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 p-6" (click)="$event.stopPropagation()">
+            <h2 class="m-0 mb-6 text-xl font-semibold">{{ loteEditar ? 'Editar' : 'Nuevo' }} lote</h2>
 
-            <div class="form-group">
-              <label>Nombre *</label>
-              <input type="text" [(ngModel)]="formLote.nombre" placeholder="Nombre del lote">
+            <div class="mb-4">
+              <label class="block mb-2 font-medium">Nombre *</label>
+              <input type="text" [(ngModel)]="formLote.nombre" placeholder="Nombre del lote" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
             </div>
 
-            <div class="form-group">
-              <label>Tipo *</label>
-              <select [(ngModel)]="formLote.tipo">
+            <div class="mb-4">
+              <label class="block mb-2 font-medium">Tipo *</label>
+              <select [(ngModel)]="formLote.tipo" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary bg-white">
                 <option value="SUBASTA">Subasta</option>
                 <option value="DONACION">Donacion</option>
                 <option value="RECICLAJE">Reciclaje</option>
@@ -138,21 +146,21 @@ interface Lote {
             </div>
 
             @if (formLote.tipo === 'SUBASTA') {
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Precio salida (€)</label>
-                  <input type="number" [(ngModel)]="formLote.precioSalida" min="0" step="0.01">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium">Precio salida (€)</label>
+                  <input type="number" [(ngModel)]="formLote.precioSalida" min="0" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
                 </div>
-                <div class="form-group">
-                  <label>Fecha cierre</label>
-                  <input type="datetime-local" [(ngModel)]="formLote.fechaCierre">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium">Fecha cierre</label>
+                  <input type="datetime-local" [(ngModel)]="formLote.fechaCierre" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
                 </div>
               </div>
             }
 
-            <div class="modal-acciones">
-              <button class="btn btn-outline" (click)="cerrarModal()">Cancelar</button>
-              <button class="btn btn-primary" (click)="guardarLote()" [disabled]="guardando()">
+            <div class="flex gap-4 justify-end mt-6">
+              <button class="px-4 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50" (click)="cerrarModal()">Cancelar</button>
+              <button class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark disabled:opacity-70" (click)="guardarLote()" [disabled]="guardando()">
                 {{ guardando() ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
@@ -161,299 +169,54 @@ interface Lote {
       }
 
       @if (modalObjetos()) {
-        <div class="modal-overlay" (click)="cerrarModal()">
-          <div class="modal modal-grande" (click)="$event.stopPropagation()">
-            <h2>Objetos del lote: {{ loteSeleccionado?.nombre }}</h2>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" (click)="cerrarModal()">
+          <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full mx-4 p-6 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
+            <h2 class="m-0 mb-6 text-xl font-semibold">Objetos del lote: {{ loteSeleccionado?.nombre }}</h2>
 
-            <div class="objetos-lote">
-              <h4>Objetos en el lote ({{ loteSeleccionado?.objetos?.length || 0 }})</h4>
+            <div class="mb-6">
+              <h4 class="m-0 mb-3 text-sm font-semibold">Objetos en el lote ({{ loteSeleccionado?.objetos?.length || 0 }})</h4>
               @if (!loteSeleccionado?.objetos?.length) {
-                <p class="sin-objetos">No hay objetos en este lote</p>
+                <p class="text-gray-400 py-4 text-center bg-gray-50 rounded">No hay objetos en este lote</p>
               } @else {
-                <div class="objetos-lista">
+                <div class="max-h-48 overflow-y-auto">
                   @for (objeto of loteSeleccionado?.objetos; track objeto.id) {
-                    <div class="objeto-item">
-                      <span>{{ objeto.codigoUnico }} - {{ objeto.titulo }}</span>
-                      <button class="btn-icon" (click)="quitarDelLote(objeto.id)">❌</button>
+                    <div class="flex justify-between items-center p-2 border-b border-gray-200">
+                      <span class="text-sm">{{ objeto.codigoUnico }} - {{ objeto.titulo }}</span>
+                      <button class="bg-transparent border-none cursor-pointer text-base" (click)="quitarDelLote(objeto.id)">❌</button>
                     </div>
                   }
                 </div>
               }
             </div>
 
-            <div class="objetos-disponibles">
-              <h4>Objetos disponibles</h4>
+            <div class="mb-6">
+              <h4 class="m-0 mb-3 text-sm font-semibold">Objetos disponibles</h4>
               <input
                 type="text"
                 [(ngModel)]="busquedaObjeto"
                 placeholder="Buscar objeto..."
                 (keyup)="buscarObjetos()"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary mb-3"
               >
-              <div class="objetos-lista">
+              <div class="max-h-48 overflow-y-auto">
                 @for (objeto of objetosDisponibles(); track objeto.id) {
-                  <div class="objeto-item">
-                    <span>{{ objeto.codigoUnico }} - {{ objeto.titulo }}</span>
-                    <button class="btn btn-sm" (click)="agregarAlLote(objeto.id)">Agregar</button>
+                  <div class="flex justify-between items-center p-2 border-b border-gray-200">
+                    <span class="text-sm">{{ objeto.codigoUnico }} - {{ objeto.titulo }}</span>
+                    <button class="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50" (click)="agregarAlLote(objeto.id)">Agregar</button>
                   </div>
                 }
               </div>
             </div>
 
-            <div class="modal-acciones">
-              <button class="btn btn-primary" (click)="cerrarModal()">Cerrar</button>
+            <div class="flex gap-4 justify-end mt-6">
+              <button class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark" (click)="cerrarModal()">Cerrar</button>
             </div>
           </div>
         </div>
       }
     </div>
   `,
-  styles: [`
-    .lotes-container {
-      padding: 2rem;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    h1 { margin: 0; }
-
-    .filtros {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .filtros select {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
-    .loading, .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-      background: white;
-      border-radius: 8px;
-    }
-
-    .lotes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .lote-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-
-    .lote-header {
-      display: flex;
-      justify-content: space-between;
-      padding: 1.5rem;
-      background: #f9f9f9;
-    }
-
-    .lote-codigo {
-      font-size: 0.75rem;
-      color: #999;
-    }
-
-    .lote-header h3 {
-      margin: 0.25rem 0 0;
-      font-size: 1.125rem;
-    }
-
-    .badges {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .tipo-badge, .estado-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .tipo-subasta { background: #e3f2fd; color: #1976d2; }
-    .tipo-donacion { background: #e8f5e9; color: #388e3c; }
-    .tipo-reciclaje { background: #fff3e0; color: #f57c00; }
-    .tipo-destruccion { background: #ffebee; color: #c62828; }
-
-    .estado-preparacion { background: #fff9c4; color: #f9a825; }
-    .estado-publicado { background: #e3f2fd; color: #1976d2; }
-    .estado-en_curso { background: #e8f5e9; color: #388e3c; }
-    .estado-cerrado { background: #f5f5f5; color: #616161; }
-
-    .lote-body {
-      padding: 1.5rem;
-    }
-
-    .objetos-preview {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .objeto-thumb {
-      width: 50px;
-      height: 50px;
-      border-radius: 4px;
-      background: #f0f0f0;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .objeto-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .objeto-thumb.mas {
-      background: #667eea;
-      color: white;
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-
-    .lote-info p {
-      margin: 0.25rem 0;
-      font-size: 0.875rem;
-      color: #666;
-    }
-
-    .lote-acciones {
-      display: flex;
-      gap: 0.5rem;
-      padding: 1rem 1.5rem;
-      background: #f9f9f9;
-      border-top: 1px solid #eee;
-    }
-
-    .btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      background: white;
-      border: 1px solid #ddd;
-    }
-
-    .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
-    .btn-primary { background: #667eea; color: white; border: none; }
-    .btn-outline { background: white; border: 1px solid #ddd; }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      opacity: 0.6;
-    }
-
-    .btn-icon:hover { opacity: 1; }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 90%;
-    }
-
-    .modal-grande {
-      max-width: 800px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal h2 { margin: 0 0 1.5rem; }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .modal-acciones {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-
-    .objetos-lote, .objetos-disponibles {
-      margin-bottom: 1.5rem;
-    }
-
-    .objetos-lote h4, .objetos-disponibles h4 {
-      margin: 0 0 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    .sin-objetos {
-      color: #999;
-      padding: 1rem;
-      text-align: center;
-      background: #f9f9f9;
-      border-radius: 4px;
-    }
-
-    .objetos-lista {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .objeto-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem;
-      border-bottom: 1px solid #eee;
-    }
-  `]
+  styles: []
 })
 export class LotesAdminComponent implements OnInit {
   private api = inject(ApiService);

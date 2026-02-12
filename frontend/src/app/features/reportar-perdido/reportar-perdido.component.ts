@@ -4,159 +4,188 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ObjetoService } from '../../core/services/objeto.service';
 import { Categoria } from '../../core/models';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { TextareaModule } from 'primeng/textarea';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-reportar-perdido',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, InputTextModule, SelectModule, DatePickerModule, ButtonModule, ToastModule, FloatLabelModule, TextareaModule, CheckboxModule],
+  providers: [MessageService],
   template: `
-    <div class="reportar-container">
-      <div class="reportar-card">
-        <h1>Reportar objeto perdido</h1>
-        <p class="descripcion">
+    <p-toast />
+    <div class="max-w-2xl mx-auto p-8">
+      <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="mb-2 text-gray-800 text-2xl font-bold">Reportar objeto perdido</h1>
+        <p class="text-gray-500 mb-8">
           Completa el formulario con los datos de tu objeto perdido.
           Te notificaremos si encontramos alguna coincidencia.
         </p>
 
         @if (success()) {
-          <div class="success-message">
-            <h2>Reporte enviado</h2>
-            <p>{{ success() }}</p>
-            <div class="success-actions">
-              <a routerLink="/mis-objetos" class="btn btn-primary">Ver mis objetos</a>
-              <a routerLink="/galeria" class="btn btn-outline">Buscar en galeria</a>
+          <div class="text-center p-8">
+            <h2 class="text-green-600 font-bold text-xl mb-4">Reporte enviado</h2>
+            <p class="text-gray-500 mb-6">{{ success() }}</p>
+            <div class="flex gap-4 justify-center max-sm:flex-col">
+              <a routerLink="/mis-objetos" class="px-6 py-3 rounded-md bg-primary text-white font-medium">Ver mis objetos</a>
+              <a routerLink="/galeria" class="px-6 py-3 rounded-md bg-white border border-primary text-primary font-medium">Buscar en galeria</a>
             </div>
           </div>
         } @else {
-          @if (error()) {
-            <div class="error-message">{{ error() }}</div>
-          }
-
           <form (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label for="titulo">Titulo *</label>
-              <input
-                type="text"
-                id="titulo"
-                [(ngModel)]="formData.titulo"
-                name="titulo"
-                placeholder="Ej: Cartera negra de cuero"
-                required
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="categoria">Categoria *</label>
-              <select
-                id="categoria"
-                [(ngModel)]="formData.categoriaId"
-                name="categoriaId"
-                required
-              >
-                <option value="">Selecciona una categoria</option>
-                @for (cat of categorias(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.nombre }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="descripcion">Descripcion *</label>
-              <textarea
-                id="descripcion"
-                [(ngModel)]="formData.descripcion"
-                name="descripcion"
-                rows="4"
-                placeholder="Describe el objeto con el mayor detalle posible: contenido, marcas identificativas, etc."
-                required
-              ></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="marca">Marca</label>
+            <div class="mb-5">
+              <p-floatlabel>
                 <input
-                  type="text"
-                  id="marca"
-                  [(ngModel)]="formData.marca"
-                  name="marca"
-                  placeholder="Ej: Samsung, Nike..."
-                >
+                  pInputText
+                  id="titulo"
+                  [(ngModel)]="formData.titulo"
+                  name="titulo"
+                  class="w-full"
+                />
+                <label for="titulo">Titulo *</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="mb-5">
+              <p-floatlabel>
+                <p-select
+                  id="categoriaId"
+                  [(ngModel)]="formData.categoriaId"
+                  name="categoriaId"
+                  [options]="categorias()"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Selecciona una categoria"
+                  class="w-full"
+                  styleClass="w-full"
+                />
+                <label for="categoriaId">Categoria *</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="mb-5">
+              <p-floatlabel>
+                <textarea
+                  pTextarea
+                  id="descripcion"
+                  [(ngModel)]="formData.descripcion"
+                  name="descripcion"
+                  rows="4"
+                  class="w-full"
+                ></textarea>
+                <label for="descripcion">Descripcion *</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mb-5">
+                <p-floatlabel>
+                  <input
+                    pInputText
+                    id="marca"
+                    [(ngModel)]="formData.marca"
+                    name="marca"
+                    class="w-full"
+                  />
+                  <label for="marca">Marca</label>
+                </p-floatlabel>
               </div>
 
-              <div class="form-group">
-                <label for="modelo">Modelo</label>
-                <input
-                  type="text"
-                  id="modelo"
-                  [(ngModel)]="formData.modelo"
-                  name="modelo"
-                  placeholder="Ej: Galaxy S21..."
-                >
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="color">Color</label>
-                <input
-                  type="text"
-                  id="color"
-                  [(ngModel)]="formData.color"
-                  name="color"
-                  placeholder="Ej: Negro, Azul..."
-                >
-              </div>
-
-              <div class="form-group">
-                <label for="numeroSerie">Numero de serie</label>
-                <input
-                  type="text"
-                  id="numeroSerie"
-                  [(ngModel)]="formData.numeroSerie"
-                  name="numeroSerie"
-                  placeholder="Si lo conoces"
-                >
+              <div class="mb-5">
+                <p-floatlabel>
+                  <input
+                    pInputText
+                    id="modelo"
+                    [(ngModel)]="formData.modelo"
+                    name="modelo"
+                    class="w-full"
+                  />
+                  <label for="modelo">Modelo</label>
+                </p-floatlabel>
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="fechaPerdida">Fecha aproximada de perdida *</label>
-                <input
-                  type="date"
-                  id="fechaPerdida"
-                  [(ngModel)]="formData.fechaPerdida"
-                  name="fechaPerdida"
-                  required
-                >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mb-5">
+                <p-floatlabel>
+                  <input
+                    pInputText
+                    id="color"
+                    [(ngModel)]="formData.color"
+                    name="color"
+                    class="w-full"
+                  />
+                  <label for="color">Color</label>
+                </p-floatlabel>
               </div>
 
-              <div class="form-group">
-                <label for="horaPerdida">Hora aproximada</label>
-                <input
-                  type="time"
-                  id="horaPerdida"
-                  [(ngModel)]="formData.horaPerdida"
-                  name="horaPerdida"
-                >
+              <div class="mb-5">
+                <p-floatlabel>
+                  <input
+                    pInputText
+                    id="numeroSerie"
+                    [(ngModel)]="formData.numeroSerie"
+                    name="numeroSerie"
+                    class="w-full"
+                  />
+                  <label for="numeroSerie">Numero de serie</label>
+                </p-floatlabel>
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="direccion">Lugar donde lo perdiste</label>
-              <input
-                type="text"
-                id="direccion"
-                [(ngModel)]="formData.direccionHallazgo"
-                name="direccionHallazgo"
-                placeholder="Calle, zona o lugar aproximado"
-              >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mb-5">
+                <p-floatlabel>
+                  <p-datepicker
+                    id="fechaPerdida"
+                    [(ngModel)]="fechaPerdidaDate"
+                    name="fechaPerdida"
+                    dateFormat="dd/mm/yy"
+                    styleClass="w-full"
+                    [showIcon]="true"
+                  />
+                  <label for="fechaPerdida">Fecha aproximada de perdida *</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-5">
+                <p-floatlabel>
+                  <input
+                    pInputText
+                    id="horaPerdida"
+                    [(ngModel)]="formData.horaPerdida"
+                    name="horaPerdida"
+                    type="time"
+                    class="w-full"
+                  />
+                  <label for="horaPerdida">Hora aproximada</label>
+                </p-floatlabel>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Fotos del objeto (opcional)</label>
-              <div class="upload-area" (click)="fileInput.click()">
+            <div class="mb-5">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="direccionHallazgo"
+                  [(ngModel)]="formData.direccionHallazgo"
+                  name="direccionHallazgo"
+                  class="w-full"
+                />
+                <label for="direccionHallazgo">Lugar donde lo perdiste</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="mb-5">
+              <label class="block mb-2 font-medium">Fotos del objeto (opcional)</label>
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors" (click)="fileInput.click()">
                 <input
                   #fileInput
                   type="file"
@@ -165,239 +194,49 @@ import { Categoria } from '../../core/models';
                   (change)="onFilesSelected($event)"
                   hidden
                 >
-                <span class="upload-icon">📷</span>
-                <span>Haz clic para subir fotos</span>
-                <small>JPG, PNG. Max 5MB por imagen</small>
+                <span class="block text-3xl mb-2">📷</span>
+                <span class="block">Haz clic para subir fotos</span>
+                <small class="block text-gray-400 mt-2">JPG, PNG. Max 5MB por imagen</small>
               </div>
               @if (selectedFiles.length > 0) {
-                <div class="files-preview">
+                <div class="mt-4">
                   @for (file of selectedFiles; track file.name; let i = $index) {
-                    <div class="file-item">
+                    <div class="flex justify-between items-center p-2 bg-gray-100 rounded mb-2">
                       <span>{{ file.name }}</span>
-                      <button type="button" (click)="removeFile(i)">&times;</button>
+                      <p-button icon="pi pi-times" [text]="true" severity="secondary" (onClick)="removeFile(i)" />
                     </div>
                   }
                 </div>
               }
             </div>
 
-            <div class="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  [(ngModel)]="crearAlerta"
-                  name="crearAlerta"
-                >
-                Crear alerta para recibir notificaciones si aparece un objeto similar
-              </label>
+            <div class="mb-5">
+              <p-checkbox
+                [(ngModel)]="crearAlerta"
+                name="crearAlerta"
+                [binary]="true"
+                inputId="crearAlerta"
+              />
+              <label for="crearAlerta" class="ml-2 cursor-pointer">Crear alerta para recibir notificaciones si aparece un objeto similar</label>
             </div>
 
-            <button type="submit" class="btn btn-primary" [disabled]="loading()">
-              {{ loading() ? 'Enviando...' : 'Enviar reporte' }}
-            </button>
+            <p-button
+              type="submit"
+              [label]="loading() ? 'Enviando...' : 'Enviar reporte'"
+              [disabled]="loading()"
+              styleClass="w-full"
+            />
           </form>
         }
       </div>
     </div>
   `,
-  styles: [`
-    .reportar-container {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .reportar-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-
-    .descripcion {
-      color: #666;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    .upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    .upload-area:hover {
-      border-color: #667eea;
-    }
-
-    .upload-icon {
-      display: block;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .upload-area small {
-      display: block;
-      color: #999;
-      margin-top: 0.5rem;
-    }
-
-    .files-preview {
-      margin-top: 1rem;
-    }
-
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem;
-      background: #f5f5f5;
-      border-radius: 4px;
-      margin-bottom: 0.5rem;
-    }
-
-    .file-item button {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .checkbox-group label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: normal;
-      cursor: pointer;
-    }
-
-    .checkbox-group input {
-      width: auto;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 0.875rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      display: block;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: #5a6fd6;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #667eea;
-      color: #667eea;
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .error-message {
-      background: #fee;
-      color: #c00;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .success-message {
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .success-message h2 {
-      color: #080;
-      margin-bottom: 1rem;
-    }
-
-    .success-message p {
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .success-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .success-actions .btn {
-      width: auto;
-      padding: 0.75rem 1.5rem;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .success-actions {
-        flex-direction: column;
-      }
-    }
-  `]
+  styles: []
 })
 export class ReportarPerdidoComponent {
   private objetoService = inject(ObjetoService);
   private router = inject(Router);
+  private messageService = inject(MessageService);
 
   categorias = signal<Categoria[]>([]);
   loading = signal(false);
@@ -416,6 +255,8 @@ export class ReportarPerdidoComponent {
     horaPerdida: '',
     direccionHallazgo: ''
   };
+
+  fechaPerdidaDate: Date | null = null;
 
   selectedFiles: File[] = [];
   crearAlerta = true;
@@ -446,8 +287,14 @@ export class ReportarPerdidoComponent {
   onSubmit() {
     this.error.set('');
 
+    // Convert date to string format
+    if (this.fechaPerdidaDate) {
+      const date = this.fechaPerdidaDate;
+      this.formData.fechaPerdida = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
     if (!this.formData.titulo || !this.formData.descripcion || !this.formData.categoriaId || !this.formData.fechaPerdida) {
-      this.error.set('Por favor, completa los campos obligatorios');
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Por favor, completa los campos obligatorios' });
       return;
     }
 
@@ -478,7 +325,7 @@ export class ReportarPerdidoComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.message || 'Error al enviar el reporte');
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message || 'Error al enviar el reporte' });
       }
     });
   }

@@ -4,6 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+
 interface Objeto {
   id: number;
   codigoUnico: string;
@@ -19,339 +31,225 @@ interface Objeto {
 @Component({
   selector: 'app-objetos-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    TableModule,
+    TagModule,
+    ButtonModule,
+    InputTextModule,
+    SelectModule,
+    ToastModule,
+    ConfirmDialogModule,
+    TooltipModule,
+    IconFieldModule,
+    InputIconModule
+  ],
+  providers: [MessageService, ConfirmationService],
   template: `
-    <div class="objetos-admin-container">
-      <div class="header">
-        <h1>Gestion de objetos</h1>
-        <a routerLink="/admin/objetos/nuevo" class="btn btn-primary">
-          + Nuevo objeto
+    <p-toast />
+    <p-confirmDialog />
+
+    <div class="p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="m-0 text-2xl font-bold text-gray-800">Gestion de objetos</h1>
+        <a routerLink="/admin/objetos/nuevo">
+          <p-button label="Nuevo objeto" icon="pi pi-plus" />
         </a>
       </div>
 
-      <div class="filtros">
-        <div class="filtros-row">
-          <input
-            type="text"
-            [(ngModel)]="filtros.busqueda"
-            placeholder="Buscar por titulo, codigo..."
-            (keyup.enter)="buscar()"
-          >
-          <select [(ngModel)]="filtros.tipo" (change)="buscar()">
-            <option value="">Todos los tipos</option>
-            <option value="ENCONTRADO">Encontrado</option>
-            <option value="PERDIDO">Perdido</option>
-          </select>
-          <select [(ngModel)]="filtros.estado" (change)="buscar()">
-            <option value="">Todos los estados</option>
-            <option value="REGISTRADO">Registrado</option>
-            <option value="EN_ALMACEN">En almacen</option>
-            <option value="RECLAMADO">Reclamado</option>
-            <option value="ENTREGADO">Entregado</option>
-            <option value="SUBASTA">Subasta</option>
-            <option value="DONADO">Donado</option>
-          </select>
-          <button class="btn btn-outline" (click)="buscar()">Buscar</button>
-        </div>
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <p-table
+          [value]="objetos()"
+          [loading]="loading()"
+          [paginator]="true"
+          [rows]="20"
+          [totalRecords]="totalRegistros()"
+          [lazy]="true"
+          (onLazyLoad)="cargarDatos($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} objetos"
+          [rowsPerPageOptions]="[10, 20, 50]"
+          styleClass="p-datatable-sm"
+          [globalFilterFields]="['titulo', 'codigoUnico']"
+        >
+          <ng-template pTemplate="caption">
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+              <div class="flex gap-4 flex-wrap items-center">
+                <p-iconfield iconPosition="left">
+                  <p-inputicon styleClass="pi pi-search" />
+                  <input
+                    pInputText
+                    type="text"
+                    [(ngModel)]="filtros.busqueda"
+                    placeholder="Buscar..."
+                    (keyup.enter)="buscar()"
+                    class="w-64"
+                  />
+                </p-iconfield>
+
+                <p-select
+                  [(ngModel)]="filtros.tipo"
+                  [options]="tiposOptions"
+                  placeholder="Tipo"
+                  (onChange)="buscar()"
+                  [showClear]="true"
+                  class="w-40"
+                />
+
+                <p-select
+                  [(ngModel)]="filtros.estado"
+                  [options]="estadosOptions"
+                  placeholder="Estado"
+                  (onChange)="buscar()"
+                  [showClear]="true"
+                  class="w-44"
+                />
+              </div>
+
+              <p-button
+                label="Buscar"
+                icon="pi pi-search"
+                severity="secondary"
+                (onClick)="buscar()"
+              />
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Objeto</th>
+              <th>Codigo</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Estado</th>
+              <th>Ubicacion</th>
+              <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-objeto>
+            <tr>
+              <td class="min-w-52">
+                <div class="flex items-center gap-3">
+                  @if (objeto.fotoPrincipal) {
+                    <img [src]="objeto.fotoPrincipal.thumbnailUrl" [alt]="objeto.titulo" class="w-10 h-10 rounded object-cover">
+                  } @else {
+                    <div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-lg">📦</div>
+                  }
+                  <span class="font-medium">{{ objeto.titulo }}</span>
+                </div>
+              </td>
+              <td>
+                <code class="bg-gray-100 px-2 py-1 rounded text-xs font-mono">{{ objeto.codigoUnico }}</code>
+              </td>
+              <td>
+                <p-tag
+                  [value]="objeto.tipo"
+                  [severity]="objeto.tipo === 'ENCONTRADO' ? 'success' : 'danger'"
+                />
+              </td>
+              <td>{{ objeto.categoria?.nombre || '-' }}</td>
+              <td>
+                <p-tag
+                  [value]="objeto.estado"
+                  [severity]="getEstadoSeverity(objeto.estado)"
+                />
+              </td>
+              <td>
+                @if (objeto.ubicacionAlmacen?.codigo) {
+                  <span class="text-sm">{{ objeto.ubicacionAlmacen.codigo }}</span>
+                } @else {
+                  <span class="text-gray-400">-</span>
+                }
+              </td>
+              <td>{{ objeto.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="flex gap-1">
+                  <a [routerLink]="['/admin/objetos', objeto.id]">
+                    <p-button
+                      icon="pi pi-pencil"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="info"
+                      pTooltip="Editar"
+                    />
+                  </a>
+                  <p-button
+                    icon="pi pi-qrcode"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="secondary"
+                    pTooltip="Generar QR"
+                    (onClick)="generarQR(objeto)"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    pTooltip="Eliminar"
+                    (onClick)="confirmarEliminar(objeto)"
+                  />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" class="text-center py-12">
+                <div class="text-gray-500">
+                  <i class="pi pi-inbox text-4xl mb-4 block"></i>
+                  <p>No se encontraron objetos</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
-
-      @if (loading()) {
-        <div class="loading">Cargando objetos...</div>
-      } @else if (objetos().length === 0) {
-        <div class="empty-state">
-          <p>No se encontraron objetos</p>
-        </div>
-      } @else {
-        <div class="tabla-container">
-          <table class="tabla">
-            <thead>
-              <tr>
-                <th>Objeto</th>
-                <th>Codigo</th>
-                <th>Tipo</th>
-                <th>Categoria</th>
-                <th>Estado</th>
-                <th>Ubicacion</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (objeto of objetos(); track objeto.id) {
-                <tr>
-                  <td class="td-objeto">
-                    <div class="objeto-cell">
-                      @if (objeto.fotoPrincipal) {
-                        <img [src]="objeto.fotoPrincipal.thumbnailUrl" [alt]="objeto.titulo">
-                      } @else {
-                        <div class="no-img">📦</div>
-                      }
-                      <span>{{ objeto.titulo }}</span>
-                    </div>
-                  </td>
-                  <td><code>{{ objeto.codigoUnico }}</code></td>
-                  <td>
-                    <span class="tipo-badge" [class]="'tipo-' + objeto.tipo.toLowerCase()">
-                      {{ objeto.tipo }}
-                    </span>
-                  </td>
-                  <td>{{ objeto.categoria?.nombre || '-' }}</td>
-                  <td>
-                    <span class="estado-badge" [class]="'estado-' + objeto.estado.toLowerCase()">
-                      {{ objeto.estado }}
-                    </span>
-                  </td>
-                  <td>{{ objeto.ubicacionAlmacen?.codigo || '-' }}</td>
-                  <td>{{ objeto.createdAt | date:'dd/MM/yyyy' }}</td>
-                  <td>
-                    <div class="acciones">
-                      <a [routerLink]="['/admin/objetos', objeto.id]" class="btn-icon" title="Editar">
-                        ✏️
-                      </a>
-                      <button class="btn-icon" (click)="generarQR(objeto)" title="Generar QR">
-                        📱
-                      </button>
-                      <button class="btn-icon" (click)="eliminar(objeto)" title="Eliminar">
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <div class="paginacion">
-          <button
-            [disabled]="pagina() === 1"
-            (click)="irAPagina(pagina() - 1)"
-          >
-            Anterior
-          </button>
-          <span>Pagina {{ pagina() }} de {{ totalPaginas() }}</span>
-          <button
-            [disabled]="pagina() === totalPaginas()"
-            (click)="irAPagina(pagina() + 1)"
-          >
-            Siguiente
-          </button>
-        </div>
-      }
     </div>
   `,
-  styles: [`
-    .objetos-admin-container {
-      padding: 2rem;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      margin: 0;
-    }
-
-    .filtros {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .filtros-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .filtros input, .filtros select {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-
-    .filtros input {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .loading, .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-      background: white;
-      border-radius: 8px;
-    }
-
-    .tabla-container {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .tabla {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .tabla th, .tabla td {
-      padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-
-    .tabla th {
-      background: #f9f9f9;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: #666;
-    }
-
-    .td-objeto {
-      min-width: 200px;
-    }
-
-    .objeto-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .objeto-cell img {
-      width: 40px;
-      height: 40px;
-      border-radius: 4px;
-      object-fit: cover;
-    }
-
-    .no-img {
-      width: 40px;
-      height: 40px;
-      background: #f0f0f0;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    code {
-      background: #f5f5f5;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-
-    .tipo-badge, .estado-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .tipo-encontrado { background: #e8f5e9; color: #388e3c; }
-    .tipo-perdido { background: #ffebee; color: #c62828; }
-
-    .estado-registrado { background: #e3f2fd; color: #1976d2; }
-    .estado-en_almacen { background: #fff3e0; color: #f57c00; }
-    .estado-reclamado { background: #fff9c4; color: #f9a825; }
-    .estado-entregado { background: #e8f5e9; color: #388e3c; }
-    .estado-subasta { background: #fce4ec; color: #c2185b; }
-    .estado-donado { background: #f3e5f5; color: #7b1fa2; }
-
-    .acciones {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-
-    .btn-icon:hover {
-      opacity: 1;
-    }
-
-    a.btn-icon {
-      text-decoration: none;
-    }
-
-    .paginacion {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .paginacion button {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .paginacion button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #667eea;
-      color: #667eea;
-    }
-
-    @media (max-width: 1024px) {
-      .tabla-container {
-        overflow-x: auto;
-      }
-    }
-  `]
+  styles: []
 })
 export class ObjetosAdminComponent implements OnInit {
   private api = inject(ApiService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   objetos = signal<Objeto[]>([]);
   loading = signal(true);
   pagina = signal(1);
-  totalPaginas = signal(1);
+  totalRegistros = signal(0);
 
   filtros = {
     busqueda: '',
-    tipo: '',
-    estado: ''
+    tipo: null as string | null,
+    estado: null as string | null
   };
 
+  tiposOptions = [
+    { label: 'Encontrado', value: 'ENCONTRADO' },
+    { label: 'Perdido', value: 'PERDIDO' }
+  ];
+
+  estadosOptions = [
+    { label: 'Registrado', value: 'REGISTRADO' },
+    { label: 'En almacen', value: 'EN_ALMACEN' },
+    { label: 'Reclamado', value: 'RECLAMADO' },
+    { label: 'Entregado', value: 'ENTREGADO' },
+    { label: 'Subasta', value: 'SUBASTA' },
+    { label: 'Donado', value: 'DONADO' }
+  ];
+
   ngOnInit() {
+    this.buscar();
+  }
+
+  cargarDatos(event: any) {
+    this.pagina.set(Math.floor(event.first / event.rows) + 1);
     this.buscar();
   }
 
@@ -366,18 +264,30 @@ export class ObjetosAdminComponent implements OnInit {
     this.api.get<any>(`/admin/objetos?${params}`).subscribe({
       next: (response) => {
         this.objetos.set(response.data || []);
-        this.totalPaginas.set(response.meta?.pages || 1);
+        this.totalRegistros.set(response.meta?.total || 0);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los objetos'
+        });
       }
     });
   }
 
-  irAPagina(pagina: number) {
-    this.pagina.set(pagina);
-    this.buscar();
+  getEstadoSeverity(estado: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    const severities: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast'> = {
+      'REGISTRADO': 'info',
+      'EN_ALMACEN': 'warn',
+      'RECLAMADO': 'warn',
+      'ENTREGADO': 'success',
+      'SUBASTA': 'secondary',
+      'DONADO': 'secondary'
+    };
+    return severities[estado] || 'info';
   }
 
   generarQR(objeto: Objeto) {
@@ -386,22 +296,50 @@ export class ObjetosAdminComponent implements OnInit {
         if (response.qrUrl) {
           window.open(response.qrUrl, '_blank');
         }
+        this.messageService.add({
+          severity: 'success',
+          summary: 'QR Generado',
+          detail: 'El codigo QR se ha generado correctamente'
+        });
       },
       error: (err) => {
-        alert(err.message || 'Error al generar QR');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al generar QR'
+        });
       }
     });
   }
 
-  eliminar(objeto: Objeto) {
-    if (!confirm(`¿Seguro que quieres eliminar "${objeto.titulo}"?`)) return;
+  confirmarEliminar(objeto: Objeto) {
+    this.confirmationService.confirm({
+      message: `¿Seguro que quieres eliminar "${objeto.titulo}"?`,
+      header: 'Confirmar eliminacion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.eliminar(objeto)
+    });
+  }
 
+  eliminar(objeto: Objeto) {
     this.api.delete(`/admin/objetos/${objeto.id}`).subscribe({
       next: () => {
         this.objetos.set(this.objetos().filter(o => o.id !== objeto.id));
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Eliminado',
+          detail: 'Objeto eliminado correctamente'
+        });
       },
       error: (err) => {
-        alert(err.message || 'Error al eliminar');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al eliminar'
+        });
       }
     });
   }

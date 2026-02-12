@@ -24,200 +24,226 @@ interface Ayuntamiento {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="configuracion-container">
-      <div class="header">
-        <h1>Configuracion</h1>
+    <div class="p-8 max-w-4xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-800 m-0">Configuracion</h1>
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando configuracion...</div>
+        <div class="text-center py-12 text-gray-500">Cargando configuracion...</div>
       } @else if (ayuntamiento()) {
-        <div class="config-sections">
-          <div class="config-card">
-            <h2>Datos del ayuntamiento</h2>
+        <div class="flex flex-col gap-6">
+          <!-- Datos del ayuntamiento -->
+          <div class="bg-white p-8 rounded-xl shadow-md">
+            <h2 class="m-0 mb-6 text-xl font-semibold text-gray-800">Datos del ayuntamiento</h2>
 
             @if (successDatos()) {
-              <div class="success-message">{{ successDatos() }}</div>
+              <div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg mb-4">{{ successDatos() }}</div>
             }
 
             <form (ngSubmit)="guardarDatos()">
-              <div class="form-group">
-                <label>Nombre</label>
-                <input type="text" [(ngModel)]="formDatos.nombre" name="nombre">
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Nombre</label>
+                <input type="text" [(ngModel)]="formDatos.nombre" name="nombre"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
               </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label>CIF</label>
-                  <input type="text" [(ngModel)]="formDatos.cif" name="cif">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium text-gray-700">CIF</label>
+                  <input type="text" [(ngModel)]="formDatos.cif" name="cif"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
                 </div>
-                <div class="form-group">
-                  <label>Telefono</label>
-                  <input type="tel" [(ngModel)]="formDatos.telefono" name="telefono">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium text-gray-700">Telefono</label>
+                  <input type="tel" [(ngModel)]="formDatos.telefono" name="telefono"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Direccion</label>
-                <input type="text" [(ngModel)]="formDatos.direccion" name="direccion">
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Direccion</label>
+                <input type="text" [(ngModel)]="formDatos.direccion" name="direccion"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
               </div>
 
-              <div class="form-group">
-                <label>Email de contacto</label>
-                <input type="email" [(ngModel)]="formDatos.email" name="email">
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Email de contacto</label>
+                <input type="email" [(ngModel)]="formDatos.email" name="email"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
               </div>
 
-              <button type="submit" class="btn btn-primary" [disabled]="guardandoDatos()">
+              <button type="submit"
+                class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                [disabled]="guardandoDatos()">
                 {{ guardandoDatos() ? 'Guardando...' : 'Guardar cambios' }}
               </button>
             </form>
           </div>
 
-          <div class="config-card">
-            <h2>Personalizacion</h2>
+          <!-- Personalizacion -->
+          <div class="bg-white p-8 rounded-xl shadow-md">
+            <h2 class="m-0 mb-6 text-xl font-semibold text-gray-800">Personalizacion</h2>
 
             @if (successConfig()) {
-              <div class="success-message">{{ successConfig() }}</div>
+              <div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg mb-4">{{ successConfig() }}</div>
             }
 
             <form (ngSubmit)="guardarConfig()">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Color primario</label>
-                  <div class="color-input">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium text-gray-700">Color primario</label>
+                  <div class="flex gap-2">
                     <input
                       type="color"
                       [(ngModel)]="formConfig.colorPrimario"
                       name="colorPrimario"
+                      class="w-12 h-11 p-0 border-none cursor-pointer rounded"
                     >
                     <input
                       type="text"
                       [(ngModel)]="formConfig.colorPrimario"
                       name="colorPrimarioText"
                       placeholder="#667eea"
+                      class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                     >
                   </div>
                 </div>
-                <div class="form-group">
-                  <label>Color secundario</label>
-                  <div class="color-input">
+                <div class="mb-4">
+                  <label class="block mb-2 font-medium text-gray-700">Color secundario</label>
+                  <div class="flex gap-2">
                     <input
                       type="color"
                       [(ngModel)]="formConfig.colorSecundario"
                       name="colorSecundario"
+                      class="w-12 h-11 p-0 border-none cursor-pointer rounded"
                     >
                     <input
                       type="text"
                       [(ngModel)]="formConfig.colorSecundario"
                       name="colorSecundarioText"
                       placeholder="#764ba2"
+                      class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                     >
                   </div>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Logo (URL)</label>
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Logo (URL)</label>
                 <input
                   type="url"
                   [(ngModel)]="formConfig.logoUrl"
                   name="logoUrl"
                   placeholder="https://..."
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                 >
                 @if (formConfig.logoUrl) {
-                  <div class="logo-preview">
-                    <img [src]="formConfig.logoUrl" alt="Logo preview">
+                  <div class="mt-4 p-4 bg-gray-50 rounded-lg text-center">
+                    <img [src]="formConfig.logoUrl" alt="Logo preview" class="max-w-48 max-h-24 inline-block">
                   </div>
                 }
               </div>
 
-              <button type="submit" class="btn btn-primary" [disabled]="guardandoConfig()">
+              <button type="submit"
+                class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                [disabled]="guardandoConfig()">
                 {{ guardandoConfig() ? 'Guardando...' : 'Guardar personalizacion' }}
               </button>
             </form>
           </div>
 
-          <div class="config-card">
-            <h2>Configuracion del sistema</h2>
+          <!-- Configuracion del sistema -->
+          <div class="bg-white p-8 rounded-xl shadow-md">
+            <h2 class="m-0 mb-6 text-xl font-semibold text-gray-800">Configuracion del sistema</h2>
 
             @if (successSistema()) {
-              <div class="success-message">{{ successSistema() }}</div>
+              <div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg mb-4">{{ successSistema() }}</div>
             }
 
             <form (ngSubmit)="guardarSistema()">
-              <div class="form-group">
-                <label>Dias hasta subasta automatica</label>
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Dias hasta subasta automatica</label>
                 <input
                   type="number"
                   [(ngModel)]="formSistema.diasHastaSubasta"
                   name="diasHastaSubasta"
                   min="365"
                   step="1"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                 >
-                <small>Por ley, los objetos no reclamados pasan a subasta tras 2 anos (730 dias)</small>
+                <small class="block mt-1 text-gray-400 text-xs">Por ley, los objetos no reclamados pasan a subasta tras 2 anos (730 dias)</small>
               </div>
 
-              <div class="form-group">
-                <label>Email para notificaciones del sistema</label>
+              <div class="mb-4">
+                <label class="block mb-2 font-medium text-gray-700">Email para notificaciones del sistema</label>
                 <input
                   type="email"
                   [(ngModel)]="formSistema.emailNotificaciones"
                   name="emailNotificaciones"
                   placeholder="notificaciones@ayuntamiento.es"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                 >
               </div>
 
-              <button type="submit" class="btn btn-primary" [disabled]="guardandoSistema()">
+              <button type="submit"
+                class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                [disabled]="guardandoSistema()">
                 {{ guardandoSistema() ? 'Guardando...' : 'Guardar configuracion' }}
               </button>
             </form>
           </div>
 
-          <div class="config-card">
-            <h2>Categorias</h2>
-            <p class="descripcion">Gestiona las categorias de objetos disponibles.</p>
+          <!-- Categorias -->
+          <div class="bg-white p-8 rounded-xl shadow-md">
+            <h2 class="m-0 mb-4 text-xl font-semibold text-gray-800">Categorias</h2>
+            <p class="text-gray-500 mb-4">Gestiona las categorias de objetos disponibles.</p>
 
-            <div class="categorias-lista">
+            <div class="mb-4">
               @for (categoria of categorias(); track categoria.id) {
-                <div class="categoria-item">
-                  <span class="categoria-icono">{{ categoria.icono || '📦' }}</span>
-                  <span class="categoria-nombre">{{ categoria.nombre }}</span>
-                  <button class="btn-icon" (click)="editarCategoria(categoria)">✏️</button>
-                  <button class="btn-icon" (click)="eliminarCategoria(categoria.id)">🗑️</button>
+                <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg mb-2">
+                  <span class="text-2xl">{{ categoria.icono || '📦' }}</span>
+                  <span class="flex-1 font-medium text-gray-800">{{ categoria.nombre }}</span>
+                  <button class="bg-transparent border-none cursor-pointer text-base opacity-60 hover:opacity-100 transition-opacity" (click)="editarCategoria(categoria)">✏️</button>
+                  <button class="bg-transparent border-none cursor-pointer text-base opacity-60 hover:opacity-100 transition-opacity" (click)="eliminarCategoria(categoria.id)">🗑️</button>
                 </div>
               }
             </div>
 
-            <button class="btn btn-outline" (click)="abrirModalCategoria()">
+            <button class="px-6 py-3 bg-white border border-primary text-primary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors" (click)="abrirModalCategoria()">
               + Nueva categoria
             </button>
           </div>
         </div>
       }
 
+      <!-- Modal Categoria -->
       @if (modalCategoria()) {
-        <div class="modal-overlay" (click)="cerrarModal()">
-          <div class="modal" (click)="$event.stopPropagation()">
-            <h2>{{ categoriaEditar ? 'Editar' : 'Nueva' }} categoria</h2>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" (click)="cerrarModal()">
+          <div class="bg-white p-8 rounded-xl max-w-lg w-11/12" (click)="$event.stopPropagation()">
+            <h2 class="m-0 mb-6 text-xl font-semibold text-gray-800">{{ categoriaEditar ? 'Editar' : 'Nueva' }} categoria</h2>
 
-            <div class="form-group">
-              <label>Nombre *</label>
-              <input type="text" [(ngModel)]="formCategoria.nombre">
+            <div class="mb-4">
+              <label class="block mb-2 font-medium text-gray-700">Nombre *</label>
+              <input type="text" [(ngModel)]="formCategoria.nombre"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
             </div>
 
-            <div class="form-group">
-              <label>Icono (emoji)</label>
-              <input type="text" [(ngModel)]="formCategoria.icono" placeholder="📱">
+            <div class="mb-4">
+              <label class="block mb-2 font-medium text-gray-700">Icono (emoji)</label>
+              <input type="text" [(ngModel)]="formCategoria.icono" placeholder="📱"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
             </div>
 
-            <div class="form-group">
-              <label>Descripcion</label>
-              <textarea [(ngModel)]="formCategoria.descripcion" rows="3"></textarea>
+            <div class="mb-4">
+              <label class="block mb-2 font-medium text-gray-700">Descripcion</label>
+              <textarea [(ngModel)]="formCategoria.descripcion" rows="3"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary resize-none"></textarea>
             </div>
 
-            <div class="modal-acciones">
-              <button class="btn btn-outline" (click)="cerrarModal()">Cancelar</button>
-              <button class="btn btn-primary" (click)="guardarCategoria()" [disabled]="guardandoCategoria()">
+            <div class="flex gap-4 justify-end mt-6">
+              <button class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors" (click)="cerrarModal()">Cancelar</button>
+              <button class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed" (click)="guardarCategoria()" [disabled]="guardandoCategoria()">
                 {{ guardandoCategoria() ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
@@ -226,198 +252,7 @@ interface Ayuntamiento {
       }
     </div>
   `,
-  styles: [`
-    .configuracion-container {
-      padding: 2rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    h1 { margin: 0; }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .config-sections {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .config-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .config-card h2 {
-      margin: 0 0 1.5rem;
-      font-size: 1.25rem;
-    }
-
-    .descripcion {
-      color: #666;
-      margin-bottom: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-group input, .form-group textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-
-    .form-group small {
-      display: block;
-      margin-top: 0.25rem;
-      color: #999;
-      font-size: 0.75rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .color-input {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .color-input input[type="color"] {
-      width: 50px;
-      height: 42px;
-      padding: 0;
-      border: none;
-      cursor: pointer;
-    }
-
-    .color-input input[type="text"] {
-      flex: 1;
-    }
-
-    .logo-preview {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .logo-preview img {
-      max-width: 200px;
-      max-height: 100px;
-    }
-
-    .categorias-lista {
-      margin-bottom: 1rem;
-    }
-
-    .categoria-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-    }
-
-    .categoria-icono {
-      font-size: 1.5rem;
-    }
-
-    .categoria-nombre {
-      flex: 1;
-      font-weight: 500;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .btn-primary { background: #667eea; color: white; }
-    .btn-outline { background: white; border: 1px solid #667eea; color: #667eea; }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      opacity: 0.6;
-    }
-
-    .btn-icon:hover { opacity: 1; }
-
-    .success-message {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 90%;
-    }
-
-    .modal h2 { margin: 0 0 1.5rem; }
-
-    .modal-acciones {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  `]
+  styles: []
 })
 export class ConfiguracionAdminComponent implements OnInit {
   private api = inject(ApiService);

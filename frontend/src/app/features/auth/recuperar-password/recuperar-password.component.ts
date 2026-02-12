@@ -9,147 +9,48 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="auth-container">
-      <div class="auth-card">
-        <h1>Recuperar contraseña</h1>
+    <div class="min-h-[calc(100vh-120px)] flex items-center justify-center p-8 bg-gray-100">
+      <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-center mb-4 text-gray-800 text-2xl font-bold">Recuperar contraseña</h1>
 
         @if (success()) {
-          <div class="success-message">
-            <p>{{ success() }}</p>
-            <a routerLink="/login" class="btn btn-outline">Volver a login</a>
+          <div class="text-center">
+            <p class="text-green-600 mb-6">{{ success() }}</p>
+            <a routerLink="/login" class="block w-full p-3 bg-white border border-primary text-primary rounded font-medium text-center hover:bg-primary hover:text-white transition-colors">Volver a login</a>
           </div>
         } @else {
-          <p class="description">Introduce tu email y te enviaremos las instrucciones para restablecer tu contraseña.</p>
+          <p class="text-center text-gray-600 mb-6">Introduce tu email y te enviaremos las instrucciones para restablecer tu contraseña.</p>
 
           @if (error()) {
-            <div class="error-message">{{ error() }}</div>
+            <div class="bg-red-50 text-red-600 p-3 rounded mb-4 text-center">{{ error() }}</div>
           }
 
           <form (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label for="email">Email</label>
+            <div class="mb-4">
+              <label for="email" class="block mb-2 font-medium">Email</label>
               <input
                 type="email"
                 id="email"
                 [(ngModel)]="email"
                 name="email"
                 required
+                class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-primary"
               >
             </div>
 
-            <button type="submit" class="btn btn-primary" [disabled]="loading()">
+            <button type="submit" class="w-full p-3 mt-4 bg-primary text-white rounded font-medium hover:bg-primary-dark disabled:opacity-70 disabled:cursor-not-allowed" [disabled]="loading()">
               {{ loading() ? 'Enviando...' : 'Enviar instrucciones' }}
             </button>
           </form>
 
-          <div class="auth-links">
-            <a routerLink="/login">Volver a iniciar sesion</a>
+          <div class="text-center mt-6">
+            <a routerLink="/login" class="text-primary hover:underline">Volver a iniciar sesion</a>
           </div>
         }
       </div>
     </div>
   `,
-  styles: [`
-    .auth-container {
-      min-height: calc(100vh - 120px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background: #f5f5f5;
-    }
-
-    .auth-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .description {
-      text-align: center;
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 1rem;
-      text-decoration: none;
-      display: block;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #667eea;
-      color: #667eea;
-    }
-
-    .error-message {
-      background: #fee;
-      color: #c00;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .success-message {
-      text-align: center;
-    }
-
-    .success-message p {
-      color: #080;
-      margin-bottom: 1.5rem;
-    }
-
-    .auth-links {
-      text-align: center;
-      margin-top: 1.5rem;
-    }
-
-    .auth-links a {
-      color: #667eea;
-      text-decoration: none;
-    }
-  `]
+  styles: []
 })
 export class RecuperarPasswordComponent {
   private authService = inject(AuthService);

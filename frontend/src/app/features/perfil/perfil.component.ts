@@ -4,6 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ApiService } from '../../core/services/api.service';
+import { FileUploadModule, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { TabsModule } from 'primeng/tabs';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 interface Alerta {
   id: number;
@@ -21,470 +31,339 @@ interface Alerta {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    FileUploadModule,
+    TabsModule,
+    InputTextModule,
+    ButtonModule,
+    ToastModule,
+    ConfirmDialogModule,
+    TagModule,
+    SelectModule,
+    TooltipModule
+  ],
+  providers: [MessageService, ConfirmationService],
   template: `
-    <div class="perfil-container">
-      <div class="perfil-header">
-        <h1>Mi perfil</h1>
+    <p-toast />
+    <p-confirmDialog />
+    <div class="max-w-3xl mx-auto p-8">
+      <div class="mb-8">
+        <h1 class="m-0">Mi perfil</h1>
       </div>
 
-      <div class="perfil-content">
-        <div class="perfil-card">
-          <h2>Datos personales</h2>
+      <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              @if (profilePhotoUrl()) {
+                <img [src]="profilePhotoUrl()" alt="Foto de perfil" class="w-full h-full object-cover" />
+              } @else {
+                <i class="pi pi-user text-4xl text-gray-400"></i>
+              }
+            </div>
+          </div>
+          <div class="flex-1">
+            <h2 class="m-0 mb-2">{{ datosPersonales.nombre }} {{ datosPersonales.apellidos }}</h2>
+            <p class="text-gray-500 m-0 mb-3">{{ datosPersonales.email }}</p>
+            <p-fileUpload
+              mode="basic"
+              name="profilePhoto"
+              accept="image/*"
+              [maxFileSize]="5000000"
+              chooseLabel="Cambiar foto"
+              chooseIcon="pi pi-camera"
+              [auto]="true"
+              [customUpload]="true"
+              (uploadHandler)="onPhotoUpload($event)"
+            />
+          </div>
+        </div>
+      </div>
 
-          @if (successDatos()) {
-            <div class="success-message">{{ successDatos() }}</div>
-          }
-          @if (errorDatos()) {
-            <div class="error-message">{{ errorDatos() }}</div>
-          }
-
-          <form (ngSubmit)="guardarDatos()">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nombre">Nombre</label>
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0">Datos personales</p-tab>
+          <p-tab value="1">Alertas</p-tab>
+          <p-tab value="2">Seguridad</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="0">
+          <form (ngSubmit)="guardarDatos()" class="pt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mb-4">
+                <label for="nombre" class="block mb-2 font-medium">Nombre</label>
                 <input
                   type="text"
+                  pInputText
                   id="nombre"
                   [(ngModel)]="datosPersonales.nombre"
                   name="nombre"
                   required
+                  class="w-full"
                 >
               </div>
-              <div class="form-group">
-                <label for="apellidos">Apellidos</label>
+              <div class="mb-4">
+                <label for="apellidos" class="block mb-2 font-medium">Apellidos</label>
                 <input
                   type="text"
+                  pInputText
                   id="apellidos"
                   [(ngModel)]="datosPersonales.apellidos"
                   name="apellidos"
+                  class="w-full"
                 >
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="email">Email</label>
+            <div class="mb-4">
+              <label for="email" class="block mb-2 font-medium">Email</label>
               <input
                 type="email"
+                pInputText
                 id="email"
                 [(ngModel)]="datosPersonales.email"
                 name="email"
                 disabled
+                class="w-full"
               >
-              <small>El email no se puede cambiar</small>
+              <small class="text-gray-400 text-xs">El email no se puede cambiar</small>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="telefono">Telefono</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="mb-4">
+                <label for="telefono" class="block mb-2 font-medium">Telefono</label>
                 <input
                   type="tel"
+                  pInputText
                   id="telefono"
                   [(ngModel)]="datosPersonales.telefono"
                   name="telefono"
+                  class="w-full"
                 >
               </div>
-              <div class="form-group">
-                <label for="dni">DNI/NIE</label>
+              <div class="mb-4">
+                <label for="dni" class="block mb-2 font-medium">DNI/NIE</label>
                 <input
                   type="text"
+                  pInputText
                   id="dni"
                   [(ngModel)]="datosPersonales.dni"
                   name="dni"
+                  class="w-full"
                 >
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" [disabled]="guardandoDatos()">
-              {{ guardandoDatos() ? 'Guardando...' : 'Guardar cambios' }}
-            </button>
+            <p-button
+              type="submit"
+              label="Guardar cambios"
+              [loading]="guardandoDatos()"
+              icon="pi pi-save"
+            />
           </form>
-        </div>
+          </p-tabpanel>
 
-        <div class="perfil-card">
-          <h2>Cambiar contrasena</h2>
+          <p-tabpanel value="1">
+          <div class="pt-4">
+            <p class="text-gray-500 mb-6">Recibe notificaciones cuando aparezcan objetos que coincidan con tus criterios.</p>
 
-          @if (successPassword()) {
-            <div class="success-message">{{ successPassword() }}</div>
-          }
-          @if (errorPassword()) {
-            <div class="error-message">{{ errorPassword() }}</div>
-          }
+            @if (loadingAlertas()) {
+              <div class="text-gray-500 text-center py-8">Cargando alertas...</div>
+            } @else {
+              @if (alertas().length === 0) {
+                <p class="text-gray-400 text-center py-8 bg-gray-50 rounded-lg mb-4">No tienes alertas configuradas</p>
+              } @else {
+                <div class="mb-4">
+                  @for (alerta of alertas(); track alerta.id) {
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg mb-2" [class.opacity-60]="!alerta.activa">
+                      <div>
+                        <div class="flex flex-wrap gap-2 mb-1">
+                          @if (alerta.criterios.categoria) {
+                            <p-tag [value]="alerta.criterios.categoria" severity="info" />
+                          }
+                          @if (alerta.criterios.color) {
+                            <p-tag [value]="'Color: ' + alerta.criterios.color" severity="info" />
+                          }
+                          @if (alerta.criterios.zona) {
+                            <p-tag [value]="'Zona: ' + alerta.criterios.zona" severity="info" />
+                          }
+                          @if (alerta.criterios.palabrasClave) {
+                            <p-tag [value]="alerta.criterios.palabrasClave" severity="info" />
+                          }
+                        </div>
+                        <span class="text-xs text-gray-400">Creada: {{ alerta.createdAt | date:'dd/MM/yyyy' }}</span>
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button
+                          [icon]="alerta.activa ? 'pi pi-bell' : 'pi pi-bell-slash'"
+                          [rounded]="true"
+                          [text]="true"
+                          [severity]="alerta.activa ? 'info' : 'secondary'"
+                          (onClick)="toggleAlerta(alerta)"
+                          [pTooltip]="alerta.activa ? 'Desactivar' : 'Activar'"
+                        />
+                        <p-button
+                          icon="pi pi-trash"
+                          [rounded]="true"
+                          [text]="true"
+                          severity="danger"
+                          (onClick)="confirmarEliminarAlerta(alerta.id)"
+                          pTooltip="Eliminar"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
 
-          <form (ngSubmit)="cambiarPassword()">
-            <div class="form-group">
-              <label for="currentPassword">Contrasena actual</label>
+              <p-button
+                [label]="mostrarFormAlerta ? 'Cancelar' : 'Nueva alerta'"
+                [outlined]="true"
+                [icon]="mostrarFormAlerta ? 'pi pi-times' : 'pi pi-plus'"
+                (onClick)="mostrarFormAlerta = !mostrarFormAlerta"
+              />
+
+              @if (mostrarFormAlerta) {
+                <form class="mt-6 pt-6 border-t border-gray-200" (ngSubmit)="crearAlerta()">
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium">Categoria</label>
+                    <p-select
+                      [(ngModel)]="nuevaAlerta.categoriaId"
+                      name="categoriaId"
+                      [options]="categorias()"
+                      optionLabel="nombre"
+                      optionValue="id"
+                      placeholder="Cualquiera"
+                      [showClear]="true"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium">Color</label>
+                      <input
+                        type="text"
+                        pInputText
+                        [(ngModel)]="nuevaAlerta.color"
+                        name="color"
+                        placeholder="Ej: Negro, Azul..."
+                        class="w-full"
+                      >
+                    </div>
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium">Zona</label>
+                      <input
+                        type="text"
+                        pInputText
+                        [(ngModel)]="nuevaAlerta.zona"
+                        name="zona"
+                        placeholder="Ej: Centro, Alameda..."
+                        class="w-full"
+                      >
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium">Palabras clave</label>
+                    <input
+                      type="text"
+                      pInputText
+                      [(ngModel)]="nuevaAlerta.palabrasClave"
+                      name="palabrasClave"
+                      placeholder="Ej: Samsung, cartera, llaves..."
+                      class="w-full"
+                    >
+                  </div>
+
+                  <p-button
+                    type="submit"
+                    label="Crear alerta"
+                    [loading]="creandoAlerta()"
+                    icon="pi pi-plus"
+                  />
+                </form>
+              }
+            }
+          </div>
+          </p-tabpanel>
+
+          <p-tabpanel value="2">
+          <form (ngSubmit)="cambiarPassword()" class="pt-4">
+            <div class="mb-4">
+              <label for="currentPassword" class="block mb-2 font-medium">Contrasena actual</label>
               <input
                 type="password"
+                pInputText
                 id="currentPassword"
                 [(ngModel)]="passwordData.currentPassword"
                 name="currentPassword"
                 required
+                class="w-full"
               >
             </div>
 
-            <div class="form-group">
-              <label for="newPassword">Nueva contrasena</label>
+            <div class="mb-4">
+              <label for="newPassword" class="block mb-2 font-medium">Nueva contrasena</label>
               <input
                 type="password"
+                pInputText
                 id="newPassword"
                 [(ngModel)]="passwordData.newPassword"
                 name="newPassword"
                 required
                 minlength="8"
+                class="w-full"
               >
-              <small>Minimo 8 caracteres</small>
+              <small class="text-gray-400 text-xs">Minimo 8 caracteres</small>
             </div>
 
-            <div class="form-group">
-              <label for="confirmPassword">Confirmar contrasena</label>
+            <div class="mb-4">
+              <label for="confirmPassword" class="block mb-2 font-medium">Confirmar contrasena</label>
               <input
                 type="password"
+                pInputText
                 id="confirmPassword"
                 [(ngModel)]="passwordData.confirmPassword"
                 name="confirmPassword"
                 required
+                class="w-full"
               >
             </div>
 
-            <button type="submit" class="btn btn-primary" [disabled]="guardandoPassword()">
-              {{ guardandoPassword() ? 'Guardando...' : 'Cambiar contrasena' }}
-            </button>
+            <p-button
+              type="submit"
+              label="Cambiar contrasena"
+              [loading]="guardandoPassword()"
+              icon="pi pi-lock"
+            />
+
+            <div class="mt-8 pt-8 border-t border-gray-200">
+              <h3 class="text-lg font-medium text-red-600 mb-4">Cerrar sesion</h3>
+              <p class="mb-4 text-gray-600">Cierra tu sesion en este dispositivo.</p>
+              <p-button
+                label="Cerrar sesion"
+                severity="danger"
+                icon="pi pi-sign-out"
+                (onClick)="cerrarSesion()"
+              />
+            </div>
           </form>
-        </div>
-
-        <div class="perfil-card">
-          <h2>Mis alertas</h2>
-          <p class="descripcion">Recibe notificaciones cuando aparezcan objetos que coincidan con tus criterios.</p>
-
-          @if (loadingAlertas()) {
-            <div class="loading">Cargando alertas...</div>
-          } @else {
-            @if (alertas().length === 0) {
-              <p class="no-alertas">No tienes alertas configuradas</p>
-            } @else {
-              <div class="alertas-lista">
-                @for (alerta of alertas(); track alerta.id) {
-                  <div class="alerta-item" [class.inactiva]="!alerta.activa">
-                    <div class="alerta-info">
-                      <div class="alerta-criterios">
-                        @if (alerta.criterios.categoria) {
-                          <span class="criterio">{{ alerta.criterios.categoria }}</span>
-                        }
-                        @if (alerta.criterios.color) {
-                          <span class="criterio">Color: {{ alerta.criterios.color }}</span>
-                        }
-                        @if (alerta.criterios.zona) {
-                          <span class="criterio">Zona: {{ alerta.criterios.zona }}</span>
-                        }
-                        @if (alerta.criterios.palabrasClave) {
-                          <span class="criterio">"{{ alerta.criterios.palabrasClave }}"</span>
-                        }
-                      </div>
-                      <span class="alerta-fecha">Creada: {{ alerta.createdAt | date:'dd/MM/yyyy' }}</span>
-                    </div>
-                    <div class="alerta-acciones">
-                      <button
-                        class="btn-icon"
-                        [class.activa]="alerta.activa"
-                        (click)="toggleAlerta(alerta)"
-                        [title]="alerta.activa ? 'Desactivar' : 'Activar'"
-                      >
-                        {{ alerta.activa ? '🔔' : '🔕' }}
-                      </button>
-                      <button
-                        class="btn-icon eliminar"
-                        (click)="eliminarAlerta(alerta.id)"
-                        title="Eliminar"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-
-            <button class="btn btn-outline" (click)="mostrarFormAlerta = !mostrarFormAlerta">
-              {{ mostrarFormAlerta ? 'Cancelar' : 'Nueva alerta' }}
-            </button>
-
-            @if (mostrarFormAlerta) {
-              <form class="nueva-alerta-form" (ngSubmit)="crearAlerta()">
-                <div class="form-group">
-                  <label>Categoria</label>
-                  <select [(ngModel)]="nuevaAlerta.categoriaId" name="categoriaId">
-                    <option value="">Cualquiera</option>
-                    @for (cat of categorias(); track cat.id) {
-                      <option [value]="cat.id">{{ cat.nombre }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Color</label>
-                    <input
-                      type="text"
-                      [(ngModel)]="nuevaAlerta.color"
-                      name="color"
-                      placeholder="Ej: Negro, Azul..."
-                    >
-                  </div>
-                  <div class="form-group">
-                    <label>Zona</label>
-                    <input
-                      type="text"
-                      [(ngModel)]="nuevaAlerta.zona"
-                      name="zona"
-                      placeholder="Ej: Centro, Alameda..."
-                    >
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Palabras clave</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="nuevaAlerta.palabrasClave"
-                    name="palabrasClave"
-                    placeholder="Ej: Samsung, cartera, llaves..."
-                  >
-                </div>
-
-                <button type="submit" class="btn btn-primary" [disabled]="creandoAlerta()">
-                  {{ creandoAlerta() ? 'Creando...' : 'Crear alerta' }}
-                </button>
-              </form>
-            }
-          }
-        </div>
-
-        <div class="perfil-card danger">
-          <h2>Cerrar sesion</h2>
-          <p>Cierra tu sesion en este dispositivo.</p>
-          <button class="btn btn-danger" (click)="cerrarSesion()">
-            Cerrar sesion
-          </button>
-        </div>
-      </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
     </div>
   `,
-  styles: [`
-    .perfil-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .perfil-header {
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      margin: 0;
-    }
-
-    .perfil-content {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .perfil-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .perfil-card.danger {
-      border-left: 4px solid #e53935;
-    }
-
-    h2 {
-      margin: 0 0 1.5rem;
-      font-size: 1.25rem;
-    }
-
-    .descripcion {
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    input:disabled {
-      background: #f5f5f5;
-      color: #999;
-    }
-
-    small {
-      color: #999;
-      font-size: 0.75rem;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #667eea;
-      color: #667eea;
-    }
-
-    .btn-danger {
-      background: #e53935;
-      color: white;
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .success-message {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-
-    .error-message {
-      background: #ffebee;
-      color: #c62828;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-
-    .loading {
-      color: #666;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .no-alertas {
-      color: #999;
-      text-align: center;
-      padding: 2rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .alertas-lista {
-      margin-bottom: 1rem;
-    }
-
-    .alerta-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-    }
-
-    .alerta-item.inactiva {
-      opacity: 0.6;
-    }
-
-    .alerta-criterios {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .criterio {
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-
-    .alerta-fecha {
-      font-size: 0.75rem;
-      color: #999;
-    }
-
-    .alerta-acciones {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .btn-icon:hover {
-      opacity: 1;
-    }
-
-    .btn-icon.activa {
-      opacity: 1;
-    }
-
-    .nueva-alerta-form {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #eee;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  `]
+  styles: []
 })
 export class PerfilComponent implements OnInit {
   private authService = inject(AuthService);
   private api = inject(ApiService);
   private router = inject(Router);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   datosPersonales = {
     nombre: '',
@@ -502,21 +381,17 @@ export class PerfilComponent implements OnInit {
 
   alertas = signal<Alerta[]>([]);
   categorias = signal<any[]>([]);
+  profilePhotoUrl = signal<string>('');
 
   guardandoDatos = signal(false);
-  successDatos = signal('');
-  errorDatos = signal('');
-
   guardandoPassword = signal(false);
-  successPassword = signal('');
-  errorPassword = signal('');
 
   loadingAlertas = signal(true);
   mostrarFormAlerta = false;
   creandoAlerta = signal(false);
 
-  nuevaAlerta = {
-    categoriaId: '',
+  nuevaAlerta: { categoriaId: number | null; color: string; zona: string; palabrasClave: string } = {
+    categoriaId: null,
     color: '',
     zona: '',
     palabrasClave: ''
@@ -538,6 +413,9 @@ export class PerfilComponent implements OnInit {
         telefono: user.telefono || '',
         dni: user.dni || ''
       };
+      if ((user as any).photoUrl) {
+        this.profilePhotoUrl.set((user as any).photoUrl);
+      }
     }
   }
 
@@ -560,35 +438,73 @@ export class PerfilComponent implements OnInit {
     });
   }
 
+  onPhotoUpload(event: FileUploadHandlerEvent) {
+    const file = event.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      this.api.post<{ url: string }>('/perfil/photo', formData).subscribe({
+        next: (response) => {
+          this.profilePhotoUrl.set(response.url);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Exito',
+            detail: 'Foto de perfil actualizada'
+          });
+          this.authService.refreshUser();
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.message || 'Error al subir la foto'
+          });
+        }
+      });
+    }
+  }
+
   guardarDatos() {
-    this.successDatos.set('');
-    this.errorDatos.set('');
     this.guardandoDatos.set(true);
 
     this.api.put('/perfil', this.datosPersonales).subscribe({
       next: () => {
         this.guardandoDatos.set(false);
-        this.successDatos.set('Datos actualizados correctamente');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'Datos actualizados correctamente'
+        });
         this.authService.refreshUser();
       },
       error: (err) => {
         this.guardandoDatos.set(false);
-        this.errorDatos.set(err.message || 'Error al guardar los datos');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al guardar los datos'
+        });
       }
     });
   }
 
   cambiarPassword() {
-    this.successPassword.set('');
-    this.errorPassword.set('');
-
     if (this.passwordData.newPassword.length < 8) {
-      this.errorPassword.set('La nueva contrasena debe tener al menos 8 caracteres');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'La nueva contrasena debe tener al menos 8 caracteres'
+      });
       return;
     }
 
     if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      this.errorPassword.set('Las contrasenas no coinciden');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Las contrasenas no coinciden'
+      });
       return;
     }
 
@@ -600,12 +516,20 @@ export class PerfilComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.guardandoPassword.set(false);
-        this.successPassword.set('Contrasena cambiada correctamente');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'Contrasena cambiada correctamente'
+        });
         this.passwordData = { currentPassword: '', newPassword: '', confirmPassword: '' };
       },
       error: (err) => {
         this.guardandoPassword.set(false);
-        this.errorPassword.set(err.message || 'Error al cambiar la contrasena');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al cambiar la contrasena'
+        });
       }
     });
   }
@@ -619,29 +543,54 @@ export class PerfilComponent implements OnInit {
           alertas[index].activa = !alertas[index].activa;
           this.alertas.set([...alertas]);
         }
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: alerta.activa ? 'Alerta desactivada' : 'Alerta activada'
+        });
       }
     });
   }
 
-  eliminarAlerta(id: number) {
-    if (!confirm('¿Seguro que quieres eliminar esta alerta?')) return;
+  confirmarEliminarAlerta(id: number) {
+    this.confirmationService.confirm({
+      message: '¿Seguro que quieres eliminar esta alerta?',
+      header: 'Confirmar eliminacion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Si, eliminar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.eliminarAlerta(id);
+      }
+    });
+  }
 
+  private eliminarAlerta(id: number) {
     this.api.delete(`/alertas/${id}`).subscribe({
       next: () => {
         this.alertas.set(this.alertas().filter(a => a.id !== id));
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'Alerta eliminada'
+        });
       }
     });
   }
 
   crearAlerta() {
     const criterios: any = {};
-    if (this.nuevaAlerta.categoriaId) criterios.categoriaId = +this.nuevaAlerta.categoriaId;
+    if (this.nuevaAlerta.categoriaId) criterios.categoriaId = this.nuevaAlerta.categoriaId;
     if (this.nuevaAlerta.color) criterios.color = this.nuevaAlerta.color;
     if (this.nuevaAlerta.zona) criterios.zona = this.nuevaAlerta.zona;
     if (this.nuevaAlerta.palabrasClave) criterios.palabrasClave = this.nuevaAlerta.palabrasClave;
 
     if (Object.keys(criterios).length === 0) {
-      alert('Debes definir al menos un criterio');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atencion',
+        detail: 'Debes definir al menos un criterio'
+      });
       return;
     }
 
@@ -652,11 +601,20 @@ export class PerfilComponent implements OnInit {
         this.creandoAlerta.set(false);
         this.alertas.set([alerta, ...this.alertas()]);
         this.mostrarFormAlerta = false;
-        this.nuevaAlerta = { categoriaId: '', color: '', zona: '', palabrasClave: '' };
+        this.nuevaAlerta = { categoriaId: null, color: '', zona: '', palabrasClave: '' };
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exito',
+          detail: 'Alerta creada correctamente'
+        });
       },
       error: (err) => {
         this.creandoAlerta.set(false);
-        alert(err.message || 'Error al crear la alerta');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al crear la alerta'
+        });
       }
     });
   }

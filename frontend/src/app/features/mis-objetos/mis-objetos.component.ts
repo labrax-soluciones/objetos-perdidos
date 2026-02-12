@@ -30,26 +30,29 @@ interface Categoria {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="mi-zona-container">
-      <div class="header">
-        <h1>Mi zona</h1>
+    <div class="max-w-4xl mx-auto p-8">
+      <div class="mb-8">
+        <h1 class="m-0">Mi zona</h1>
       </div>
 
-      <div class="tabs">
+      <div class="flex mb-8 border-b-2 border-gray-200 overflow-x-auto">
         <button
-          [class.active]="tabActiva() === 'perdidos'"
+          class="px-6 py-4 border-none bg-transparent cursor-pointer text-sm whitespace-nowrap -mb-0.5 border-b-2"
+          [class]="tabActiva() === 'perdidos' ? 'text-primary border-primary' : 'text-gray-500 border-transparent'"
           (click)="cambiarTab('perdidos')"
         >
           Mis objetos perdidos
         </button>
         <button
-          [class.active]="tabActiva() === 'encontrados'"
+          class="px-6 py-4 border-none bg-transparent cursor-pointer text-sm whitespace-nowrap -mb-0.5 border-b-2"
+          [class]="tabActiva() === 'encontrados' ? 'text-primary border-primary' : 'text-gray-500 border-transparent'"
           (click)="cambiarTab('encontrados')"
         >
           Objetos que he encontrado
         </button>
         <button
-          [class.active]="tabActiva() === 'solicitudes'"
+          class="px-6 py-4 border-none bg-transparent cursor-pointer text-sm whitespace-nowrap -mb-0.5 border-b-2"
+          [class]="tabActiva() === 'solicitudes' ? 'text-primary border-primary' : 'text-gray-500 border-transparent'"
           (click)="cambiarTab('solicitudes')"
         >
           Mis solicitudes
@@ -57,31 +60,33 @@ interface Categoria {
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando...</div>
+        <div class="text-center py-12 text-gray-500">Cargando...</div>
       } @else {
         <!-- Tab Objetos Perdidos -->
         @if (tabActiva() === 'perdidos') {
-          <div class="tab-content">
-            <div class="tab-header">
-              <h2>Objetos que he perdido</h2>
-              <button class="btn btn-primary" (click)="mostrarFormulario('perdido')">
+          <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h2 class="m-0 text-xl">Objetos que he perdido</h2>
+              <button class="px-6 py-3 border-none rounded-md font-medium cursor-pointer text-sm bg-primary text-white" (click)="mostrarFormulario('perdido')">
                 + Reportar objeto perdido
               </button>
             </div>
 
             @if (mostrandoFormulario() === 'perdido') {
-              <div class="formulario-reporte">
-                <h3>Reportar objeto perdido</h3>
+              <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
+                <h3 class="m-0 mb-4">Reportar objeto perdido</h3>
                 <form (ngSubmit)="guardarObjeto('PERDIDO')">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Titulo *</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Titulo *</label>
                       <input type="text" [(ngModel)]="formObjeto.titulo" name="titulo" required
-                        placeholder="Ej: Cartera negra con documentos">
+                        placeholder="Ej: Cartera negra con documentos"
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Categoria *</label>
-                      <select [(ngModel)]="formObjeto.categoriaId" name="categoriaId" required>
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Categoria *</label>
+                      <select [(ngModel)]="formObjeto.categoriaId" name="categoriaId" required
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                         <option value="">Selecciona categoria</option>
                         @for (cat of categorias(); track cat.id) {
                           <option [value]="cat.id">{{ cat.icono }} {{ cat.nombre }}</option>
@@ -90,43 +95,49 @@ interface Categoria {
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Descripcion *</label>
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium text-gray-800">Descripcion *</label>
                     <textarea [(ngModel)]="formObjeto.descripcion" name="descripcion" rows="3" required
-                      placeholder="Describe el objeto con el mayor detalle posible"></textarea>
+                      placeholder="Describe el objeto con el mayor detalle posible"
+                      class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white"></textarea>
                   </div>
 
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Fecha en que lo perdiste *</label>
-                      <input type="date" [(ngModel)]="formObjeto.fechaHallazgo" name="fechaHallazgo" required>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Fecha en que lo perdiste *</label>
+                      <input type="date" [(ngModel)]="formObjeto.fechaHallazgo" name="fechaHallazgo" required
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Hora aproximada</label>
-                      <input type="time" [(ngModel)]="formObjeto.horaHallazgo" name="horaHallazgo">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Hora aproximada</label>
+                      <input type="time" [(ngModel)]="formObjeto.horaHallazgo" name="horaHallazgo"
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Lugar donde crees que lo perdiste *</label>
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium text-gray-800">Lugar donde crees que lo perdiste *</label>
                     <input type="text" [(ngModel)]="formObjeto.direccionHallazgo" name="direccionHallazgo" required
-                      placeholder="Ej: Parque Central, cerca de la fuente">
+                      placeholder="Ej: Parque Central, cerca de la fuente"
+                      class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                   </div>
 
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Marca</label>
-                      <input type="text" [(ngModel)]="formObjeto.marca" name="marca" placeholder="Ej: Samsung, Nike...">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Marca</label>
+                      <input type="text" [(ngModel)]="formObjeto.marca" name="marca" placeholder="Ej: Samsung, Nike..."
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Color</label>
-                      <input type="text" [(ngModel)]="formObjeto.color" name="color" placeholder="Ej: Negro, Azul...">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Color</label>
+                      <input type="text" [(ngModel)]="formObjeto.color" name="color" placeholder="Ej: Negro, Azul..."
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
                   </div>
 
-                  <div class="form-actions">
-                    <button type="button" class="btn btn-outline" (click)="cancelarFormulario()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+                  <div class="flex gap-4 justify-end mt-6 pt-6 border-t border-gray-200">
+                    <button type="button" class="px-6 py-3 rounded-md font-medium cursor-pointer text-sm bg-white border border-primary text-primary" (click)="cancelarFormulario()">Cancelar</button>
+                    <button type="submit" class="px-6 py-3 border-none rounded-md font-medium cursor-pointer text-sm bg-primary text-white disabled:opacity-60 disabled:cursor-not-allowed" [disabled]="guardando()">
                       {{ guardando() ? 'Guardando...' : 'Reportar perdido' }}
                     </button>
                   </div>
@@ -135,36 +146,42 @@ interface Categoria {
             }
 
             @if (objetosPerdidos().length === 0 && !mostrandoFormulario()) {
-              <div class="empty-state">
-                <span class="empty-icon">🔍</span>
-                <p>No has reportado ningun objeto perdido</p>
-                <button class="btn btn-outline" (click)="mostrarFormulario('perdido')">
+              <div class="text-center py-16 px-8 bg-gray-50 rounded-xl">
+                <span class="text-5xl block mb-4">🔍</span>
+                <p class="text-gray-500 mb-6">No has reportado ningun objeto perdido</p>
+                <button class="px-6 py-3 rounded-md font-medium cursor-pointer text-sm bg-white border border-primary text-primary" (click)="mostrarFormulario('perdido')">
                   Reportar mi primer objeto
                 </button>
               </div>
             } @else if (!mostrandoFormulario()) {
-              <div class="objetos-list">
+              <div class="flex flex-col gap-4">
                 @for (objeto of objetosPerdidos(); track objeto.id) {
-                  <div class="objeto-card">
-                    <div class="objeto-imagen">
+                  <div class="flex flex-col sm:flex-row gap-6 bg-white p-6 rounded-xl shadow-md">
+                    <div class="w-full sm:w-[100px] h-[180px] sm:h-[100px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
                       @if (objeto.fotoPrincipal?.thumbnailUrl) {
-                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo">
+                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo" class="w-full h-full object-cover">
                       } @else {
-                        <div class="no-imagen">🔍</div>
+                        <div class="h-full flex items-center justify-center text-4xl">🔍</div>
                       }
                     </div>
-                    <div class="objeto-info">
-                      <h3>{{ objeto.titulo }}</h3>
-                      <p class="descripcion">{{ objeto.descripcion }}</p>
-                      <div class="meta">
-                        <span class="categoria-badge">{{ objeto.categoria?.nombre }}</span>
-                        <span class="fecha">Perdido: {{ objeto.fechaHallazgo | date:'dd/MM/yyyy' }}</span>
-                        <span class="estado" [class]="'estado-' + objeto.estado.toLowerCase()">
+                    <div class="flex-1">
+                      <h3 class="m-0 mb-1 text-lg">{{ objeto.titulo }}</h3>
+                      <p class="text-gray-500 m-0 mb-3 text-sm line-clamp-2">{{ objeto.descripcion }}</p>
+                      <div class="flex flex-wrap gap-3 items-center text-sm">
+                        <span class="bg-gray-200 px-2 py-0.5 rounded">{{ objeto.categoria?.nombre }}</span>
+                        <span class="text-gray-400">Perdido: {{ objeto.fechaHallazgo | date:'dd/MM/yyyy' }}</span>
+                        <span class="px-2 py-1 rounded text-xs font-medium"
+                          [ngClass]="{
+                            'bg-blue-100 text-blue-800': objeto.estado.toLowerCase() === 'registrado',
+                            'bg-orange-100 text-orange-800': objeto.estado.toLowerCase() === 'en_almacen',
+                            'bg-yellow-100 text-yellow-800': objeto.estado.toLowerCase() === 'reclamado',
+                            'bg-green-100 text-green-800': objeto.estado.toLowerCase() === 'entregado'
+                          }">
                           {{ getEstadoLabel(objeto.estado) }}
                         </span>
                       </div>
                       @if (objeto.direccionHallazgo) {
-                        <p class="lugar">📍 {{ objeto.direccionHallazgo }}</p>
+                        <p class="mt-2 mb-0 text-sm text-gray-500">📍 {{ objeto.direccionHallazgo }}</p>
                       }
                     </div>
                   </div>
@@ -176,28 +193,30 @@ interface Categoria {
 
         <!-- Tab Objetos Encontrados -->
         @if (tabActiva() === 'encontrados') {
-          <div class="tab-content">
-            <div class="tab-header">
-              <h2>Objetos que he encontrado</h2>
-              <button class="btn btn-primary" (click)="mostrarFormulario('encontrado')">
+          <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h2 class="m-0 text-xl">Objetos que he encontrado</h2>
+              <button class="px-6 py-3 border-none rounded-md font-medium cursor-pointer text-sm bg-primary text-white" (click)="mostrarFormulario('encontrado')">
                 + Entregar objeto encontrado
               </button>
             </div>
 
             @if (mostrandoFormulario() === 'encontrado') {
-              <div class="formulario-reporte">
-                <h3>Entregar objeto encontrado</h3>
-                <p class="info-entrega">Al registrar el objeto, deberás entregarlo en las oficinas municipales para su custodia.</p>
+              <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
+                <h3 class="m-0 mb-4">Entregar objeto encontrado</h3>
+                <p class="bg-blue-100 text-blue-800 p-4 rounded-lg mb-6 text-sm">Al registrar el objeto, deberás entregarlo en las oficinas municipales para su custodia.</p>
                 <form (ngSubmit)="guardarObjeto('ENCONTRADO')">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Titulo *</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Titulo *</label>
                       <input type="text" [(ngModel)]="formObjeto.titulo" name="titulo" required
-                        placeholder="Ej: Movil iPhone encontrado">
+                        placeholder="Ej: Movil iPhone encontrado"
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Categoria *</label>
-                      <select [(ngModel)]="formObjeto.categoriaId" name="categoriaId" required>
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Categoria *</label>
+                      <select [(ngModel)]="formObjeto.categoriaId" name="categoriaId" required
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                         <option value="">Selecciona categoria</option>
                         @for (cat of categorias(); track cat.id) {
                           <option [value]="cat.id">{{ cat.icono }} {{ cat.nombre }}</option>
@@ -206,43 +225,49 @@ interface Categoria {
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Descripcion *</label>
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium text-gray-800">Descripcion *</label>
                     <textarea [(ngModel)]="formObjeto.descripcion" name="descripcion" rows="3" required
-                      placeholder="Describe el objeto que has encontrado"></textarea>
+                      placeholder="Describe el objeto que has encontrado"
+                      class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white"></textarea>
                   </div>
 
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Fecha en que lo encontraste *</label>
-                      <input type="date" [(ngModel)]="formObjeto.fechaHallazgo" name="fechaHallazgo" required>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Fecha en que lo encontraste *</label>
+                      <input type="date" [(ngModel)]="formObjeto.fechaHallazgo" name="fechaHallazgo" required
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Hora aproximada</label>
-                      <input type="time" [(ngModel)]="formObjeto.horaHallazgo" name="horaHallazgo">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Hora aproximada</label>
+                      <input type="time" [(ngModel)]="formObjeto.horaHallazgo" name="horaHallazgo"
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Lugar donde lo encontraste *</label>
+                  <div class="mb-4">
+                    <label class="block mb-2 font-medium text-gray-800">Lugar donde lo encontraste *</label>
                     <input type="text" [(ngModel)]="formObjeto.direccionHallazgo" name="direccionHallazgo" required
-                      placeholder="Ej: Parada de autobus linea 5">
+                      placeholder="Ej: Parada de autobus linea 5"
+                      class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                   </div>
 
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Marca</label>
-                      <input type="text" [(ngModel)]="formObjeto.marca" name="marca" placeholder="Ej: Samsung, Nike...">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Marca</label>
+                      <input type="text" [(ngModel)]="formObjeto.marca" name="marca" placeholder="Ej: Samsung, Nike..."
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
-                    <div class="form-group">
-                      <label>Color</label>
-                      <input type="text" [(ngModel)]="formObjeto.color" name="color" placeholder="Ej: Negro, Azul...">
+                    <div class="mb-4">
+                      <label class="block mb-2 font-medium text-gray-800">Color</label>
+                      <input type="text" [(ngModel)]="formObjeto.color" name="color" placeholder="Ej: Negro, Azul..."
+                        class="w-full py-3 px-3 border border-gray-300 rounded-md text-base text-gray-800 bg-white">
                     </div>
                   </div>
 
-                  <div class="form-actions">
-                    <button type="button" class="btn btn-outline" (click)="cancelarFormulario()">Cancelar</button>
-                    <button type="submit" class="btn btn-success" [disabled]="guardando()">
+                  <div class="flex gap-4 justify-end mt-6 pt-6 border-t border-gray-200">
+                    <button type="button" class="px-6 py-3 rounded-md font-medium cursor-pointer text-sm bg-white border border-primary text-primary" (click)="cancelarFormulario()">Cancelar</button>
+                    <button type="submit" class="px-6 py-3 border-none rounded-md font-medium cursor-pointer text-sm bg-success text-white disabled:opacity-60 disabled:cursor-not-allowed" [disabled]="guardando()">
                       {{ guardando() ? 'Guardando...' : 'Registrar y entregar' }}
                     </button>
                   </div>
@@ -251,32 +276,38 @@ interface Categoria {
             }
 
             @if (objetosEncontrados().length === 0 && !mostrandoFormulario()) {
-              <div class="empty-state">
-                <span class="empty-icon">📦</span>
-                <p>No has entregado ningun objeto encontrado</p>
-                <button class="btn btn-outline" (click)="mostrarFormulario('encontrado')">
+              <div class="text-center py-16 px-8 bg-gray-50 rounded-xl">
+                <span class="text-5xl block mb-4">📦</span>
+                <p class="text-gray-500 mb-6">No has entregado ningun objeto encontrado</p>
+                <button class="px-6 py-3 rounded-md font-medium cursor-pointer text-sm bg-white border border-primary text-primary" (click)="mostrarFormulario('encontrado')">
                   Entregar un objeto
                 </button>
               </div>
             } @else if (!mostrandoFormulario()) {
-              <div class="objetos-list">
+              <div class="flex flex-col gap-4">
                 @for (objeto of objetosEncontrados(); track objeto.id) {
-                  <div class="objeto-card">
-                    <div class="objeto-imagen">
+                  <div class="flex flex-col sm:flex-row gap-6 bg-white p-6 rounded-xl shadow-md">
+                    <div class="w-full sm:w-[100px] h-[180px] sm:h-[100px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
                       @if (objeto.fotoPrincipal?.thumbnailUrl) {
-                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo">
+                        <img [src]="objeto.fotoPrincipal?.thumbnailUrl" [alt]="objeto.titulo" class="w-full h-full object-cover">
                       } @else {
-                        <div class="no-imagen">📦</div>
+                        <div class="h-full flex items-center justify-center text-4xl">📦</div>
                       }
                     </div>
-                    <div class="objeto-info">
-                      <h3>{{ objeto.titulo }}</h3>
-                      <p class="codigo">{{ objeto.codigoUnico }}</p>
-                      <p class="descripcion">{{ objeto.descripcion }}</p>
-                      <div class="meta">
-                        <span class="categoria-badge">{{ objeto.categoria?.nombre }}</span>
-                        <span class="fecha">Encontrado: {{ objeto.fechaHallazgo | date:'dd/MM/yyyy' }}</span>
-                        <span class="estado" [class]="'estado-' + objeto.estado.toLowerCase()">
+                    <div class="flex-1">
+                      <h3 class="m-0 mb-1 text-lg">{{ objeto.titulo }}</h3>
+                      <p class="font-mono text-xs text-gray-400 m-0 mb-2">{{ objeto.codigoUnico }}</p>
+                      <p class="text-gray-500 m-0 mb-3 text-sm line-clamp-2">{{ objeto.descripcion }}</p>
+                      <div class="flex flex-wrap gap-3 items-center text-sm">
+                        <span class="bg-gray-200 px-2 py-0.5 rounded">{{ objeto.categoria?.nombre }}</span>
+                        <span class="text-gray-400">Encontrado: {{ objeto.fechaHallazgo | date:'dd/MM/yyyy' }}</span>
+                        <span class="px-2 py-1 rounded text-xs font-medium"
+                          [ngClass]="{
+                            'bg-blue-100 text-blue-800': objeto.estado.toLowerCase() === 'registrado',
+                            'bg-orange-100 text-orange-800': objeto.estado.toLowerCase() === 'en_almacen',
+                            'bg-yellow-100 text-yellow-800': objeto.estado.toLowerCase() === 'reclamado',
+                            'bg-green-100 text-green-800': objeto.estado.toLowerCase() === 'entregado'
+                          }">
                           {{ getEstadoLabel(objeto.estado) }}
                         </span>
                       </div>
@@ -290,48 +321,54 @@ interface Categoria {
 
         <!-- Tab Solicitudes -->
         @if (tabActiva() === 'solicitudes') {
-          <div class="tab-content">
-            <div class="tab-header">
-              <h2>Mis solicitudes de recuperacion</h2>
+          <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h2 class="m-0 text-xl">Mis solicitudes de recuperacion</h2>
             </div>
 
             @if (solicitudes().length === 0) {
-              <div class="empty-state">
-                <span class="empty-icon">📋</span>
-                <p>No tienes solicitudes de recuperacion</p>
-                <a routerLink="/galeria" class="btn btn-outline">
+              <div class="text-center py-16 px-8 bg-gray-50 rounded-xl">
+                <span class="text-5xl block mb-4">📋</span>
+                <p class="text-gray-500 mb-6">No tienes solicitudes de recuperacion</p>
+                <a routerLink="/galeria" class="inline-block px-6 py-3 rounded-md font-medium text-sm bg-white border border-primary text-primary no-underline">
                   Buscar en la galeria
                 </a>
               </div>
             } @else {
-              <div class="solicitudes-list">
+              <div class="flex flex-col gap-4">
                 @for (solicitud of solicitudes(); track solicitud.id) {
-                  <div class="solicitud-card">
-                    <div class="solicitud-objeto">
+                  <div class="flex flex-col sm:flex-row gap-6 bg-white p-6 rounded-xl shadow-md items-start sm:items-center">
+                    <div>
                       @if (solicitud.objeto) {
-                        <div class="objeto-mini">
+                        <div class="flex gap-4 items-center">
                           @if (solicitud.objeto.fotoPrincipal?.thumbnailUrl) {
-                            <img [src]="solicitud.objeto.fotoPrincipal.thumbnailUrl" [alt]="solicitud.objeto.titulo">
+                            <img [src]="solicitud.objeto.fotoPrincipal.thumbnailUrl" [alt]="solicitud.objeto.titulo" class="w-[60px] h-[60px] rounded-md object-cover">
                           } @else {
-                            <div class="mini-placeholder">📦</div>
+                            <div class="w-[60px] h-[60px] rounded-md bg-gray-100 flex items-center justify-center text-2xl">📦</div>
                           }
                           <div>
-                            <h4>{{ solicitud.objeto.titulo }}</h4>
-                            <span class="codigo">{{ solicitud.objeto.codigoUnico }}</span>
+                            <h4 class="m-0 mb-1">{{ solicitud.objeto.titulo }}</h4>
+                            <span class="font-mono text-xs text-gray-400">{{ solicitud.objeto.codigoUnico }}</span>
                           </div>
                         </div>
                       }
                     </div>
-                    <div class="solicitud-info">
-                      <span class="estado-solicitud" [class]="'estado-' + solicitud.estado.toLowerCase()">
+                    <div class="flex-1 flex flex-wrap gap-4 items-center">
+                      <span class="px-3 py-1.5 rounded-md text-sm font-medium"
+                        [ngClass]="{
+                          'bg-orange-100 text-orange-800': solicitud.estado.toLowerCase() === 'pendiente',
+                          'bg-blue-100 text-blue-800': solicitud.estado.toLowerCase() === 'validando',
+                          'bg-green-100 text-green-800': solicitud.estado.toLowerCase() === 'aprobada' || solicitud.estado.toLowerCase() === 'entregada',
+                          'bg-red-100 text-red-800': solicitud.estado.toLowerCase() === 'rechazada'
+                        }">
                         {{ getSolicitudEstadoLabel(solicitud.estado) }}
                       </span>
-                      <span class="fecha">Solicitado: {{ solicitud.createdAt | date:'dd/MM/yyyy' }}</span>
+                      <span class="text-gray-400 text-sm">Solicitado: {{ solicitud.createdAt | date:'dd/MM/yyyy' }}</span>
                       @if (solicitud.fechaCita) {
-                        <span class="cita">📅 Cita: {{ solicitud.fechaCita | date:'dd/MM/yyyy HH:mm' }}</span>
+                        <span class="text-primary font-medium text-sm">📅 Cita: {{ solicitud.fechaCita | date:'dd/MM/yyyy HH:mm' }}</span>
                       }
                       @if (solicitud.motivoRechazo) {
-                        <p class="rechazo">❌ {{ solicitud.motivoRechazo }}</p>
+                        <p class="w-full m-0 text-red-700 text-sm">❌ {{ solicitud.motivoRechazo }}</p>
                       }
                     </div>
                   </div>
@@ -343,335 +380,7 @@ interface Categoria {
       }
     </div>
   `,
-  styles: [`
-    .mi-zona-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    h1 { margin: 0; }
-
-    .tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 2rem;
-      border-bottom: 2px solid #eee;
-      overflow-x: auto;
-    }
-
-    .tabs button {
-      padding: 1rem 1.5rem;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: #666;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      white-space: nowrap;
-    }
-
-    .tabs button.active {
-      color: #667eea;
-      border-bottom-color: #667eea;
-    }
-
-    .tab-content { margin-bottom: 2rem; }
-
-    .tab-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-header h2 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: #f9f9f9;
-      border-radius: 12px;
-    }
-
-    .empty-icon {
-      font-size: 3rem;
-      display: block;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .formulario-reporte {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
-
-    .formulario-reporte h3 {
-      margin: 0 0 1rem;
-    }
-
-    .info-entrega {
-      background: #e3f2fd;
-      color: #1565c0;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
-      color: #333;
-      background: white;
-    }
-
-    .form-group select option {
-      color: #333;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #eee;
-    }
-
-    .objetos-list, .solicitudes-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .objeto-card {
-      display: flex;
-      gap: 1.5rem;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .objeto-imagen {
-      width: 100px;
-      height: 100px;
-      flex-shrink: 0;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #f0f0f0;
-    }
-
-    .objeto-imagen img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .no-imagen {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-    }
-
-    .objeto-info { flex: 1; }
-
-    .objeto-info h3 {
-      margin: 0 0 0.25rem;
-      font-size: 1.1rem;
-    }
-
-    .codigo {
-      font-family: monospace;
-      font-size: 0.8rem;
-      color: #999;
-      margin: 0 0 0.5rem;
-    }
-
-    .descripcion {
-      color: #666;
-      margin: 0 0 0.75rem;
-      font-size: 0.9rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      font-size: 0.85rem;
-    }
-
-    .categoria-badge {
-      background: #e0e0e0;
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-
-    .fecha { color: #999; }
-
-    .lugar {
-      margin: 0.5rem 0 0;
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .estado {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .estado-registrado { background: #e3f2fd; color: #1976d2; }
-    .estado-en_almacen { background: #fff3e0; color: #f57c00; }
-    .estado-reclamado { background: #fff9c4; color: #f9a825; }
-    .estado-entregado { background: #e8f5e9; color: #388e3c; }
-
-    .solicitud-card {
-      display: flex;
-      gap: 1.5rem;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      align-items: center;
-    }
-
-    .objeto-mini {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .objeto-mini img {
-      width: 60px;
-      height: 60px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-
-    .mini-placeholder {
-      width: 60px;
-      height: 60px;
-      border-radius: 6px;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    .objeto-mini h4 { margin: 0 0 0.25rem; }
-
-    .solicitud-info {
-      flex: 1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .estado-solicitud {
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    .estado-pendiente { background: #fff3e0; color: #f57c00; }
-    .estado-validando { background: #e3f2fd; color: #1976d2; }
-    .estado-aprobada { background: #e8f5e9; color: #388e3c; }
-    .estado-rechazada { background: #ffebee; color: #c62828; }
-    .estado-entregada { background: #e8f5e9; color: #2e7d32; }
-
-    .cita {
-      color: #667eea;
-      font-weight: 500;
-    }
-
-    .rechazo {
-      width: 100%;
-      margin: 0;
-      color: #c62828;
-      font-size: 0.875rem;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 0.9rem;
-    }
-
-    .btn-primary { background: #667eea; color: white; }
-    .btn-success { background: #27ae60; color: white; }
-    .btn-outline { background: white; border: 1px solid #667eea; color: #667eea; }
-
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    @media (max-width: 600px) {
-      .form-row { grid-template-columns: 1fr; }
-      .objeto-card { flex-direction: column; }
-      .objeto-imagen { width: 100%; height: 180px; }
-      .solicitud-card { flex-direction: column; align-items: flex-start; }
-      .tab-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
-    }
-  `]
+  styles: []
 })
 export class MisObjetosComponent implements OnInit {
   private api = inject(ApiService);

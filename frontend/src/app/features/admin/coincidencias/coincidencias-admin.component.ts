@@ -27,27 +27,30 @@ interface Coincidencia {
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="coincidencias-container">
-      <div class="header">
-        <h1>Coincidencias</h1>
-        <p>Revisa las posibles coincidencias entre objetos encontrados y perdidos</p>
+    <div class="p-8">
+      <div class="mb-8">
+        <h1 class="m-0 mb-2 text-2xl font-bold text-gray-800">Coincidencias</h1>
+        <p class="text-gray-500 m-0">Revisa las posibles coincidencias entre objetos encontrados y perdidos</p>
       </div>
 
-      <div class="filtros">
+      <div class="flex gap-2 mb-8">
         <button
-          [class.active]="filtro() === 'PENDIENTE'"
+          class="px-6 py-2 border rounded-full text-sm cursor-pointer transition-colors"
+          [class]="filtro() === 'PENDIENTE' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'"
           (click)="filtrar('PENDIENTE')"
         >
           Pendientes
         </button>
         <button
-          [class.active]="filtro() === 'CONFIRMADA'"
+          class="px-6 py-2 border rounded-full text-sm cursor-pointer transition-colors"
+          [class]="filtro() === 'CONFIRMADA' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'"
           (click)="filtrar('CONFIRMADA')"
         >
           Confirmadas
         </button>
         <button
-          [class.active]="filtro() === 'DESCARTADA'"
+          class="px-6 py-2 border rounded-full text-sm cursor-pointer transition-colors"
+          [class]="filtro() === 'DESCARTADA' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'"
           (click)="filtrar('DESCARTADA')"
         >
           Descartadas
@@ -55,72 +58,73 @@ interface Coincidencia {
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando coincidencias...</div>
+        <div class="text-center py-12 text-gray-500 bg-white rounded-lg">Cargando coincidencias...</div>
       } @else if (coincidencias().length === 0) {
-        <div class="empty-state">
+        <div class="text-center py-12 text-gray-500 bg-white rounded-lg">
           <p>No hay coincidencias {{ filtro().toLowerCase() }}s</p>
         </div>
       } @else {
-        <div class="coincidencias-lista">
+        <div class="flex flex-col gap-6">
           @for (coincidencia of coincidencias(); track coincidencia.id) {
-            <div class="coincidencia-card">
-              <div class="puntuacion">
-                <div class="puntuacion-circulo" [class]="getPuntuacionClass(coincidencia.puntuacion)">
+            <div class="bg-white rounded-xl shadow-md p-8">
+              <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full text-2xl font-bold text-white"
+                  [class]="coincidencia.puntuacion >= 70 ? 'bg-green-500' : coincidencia.puntuacion >= 40 ? 'bg-orange-500' : 'bg-gray-400'">
                   {{ coincidencia.puntuacion }}%
                 </div>
-                <span class="puntuacion-label">Coincidencia</span>
+                <span class="block mt-2 text-sm text-gray-500">Coincidencia</span>
               </div>
 
-              <div class="objetos-comparacion">
-                <div class="objeto-col encontrado">
-                  <span class="tipo-label">Encontrado</span>
-                  <div class="objeto-preview">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                <div class="text-center">
+                  <span class="inline-block px-3 py-1 rounded text-xs font-semibold mb-4 bg-green-100 text-green-800">Encontrado</span>
+                  <div class="w-36 h-36 mx-auto mb-4 rounded-lg overflow-hidden bg-gray-100">
                     @if (coincidencia.objetoEncontrado.fotos?.length) {
-                      <img [src]="coincidencia.objetoEncontrado.fotos![0].thumbnailUrl" alt="">
+                      <img [src]="coincidencia.objetoEncontrado.fotos![0].thumbnailUrl" alt="" class="w-full h-full object-cover">
                     } @else {
-                      <div class="no-img">📦</div>
+                      <div class="h-full flex items-center justify-center text-5xl">📦</div>
                     }
                   </div>
-                  <p class="objeto-codigo">{{ coincidencia.objetoEncontrado.codigoUnico }}</p>
-                  <p class="objeto-titulo">{{ coincidencia.objetoEncontrado.titulo }}</p>
-                  <a [routerLink]="['/admin/objetos', coincidencia.objetoEncontrado.id]" class="ver-link">
+                  <p class="text-xs text-gray-400 m-0">{{ coincidencia.objetoEncontrado.codigoUnico }}</p>
+                  <p class="font-semibold m-0 mt-1">{{ coincidencia.objetoEncontrado.titulo }}</p>
+                  <a [routerLink]="['/admin/objetos', coincidencia.objetoEncontrado.id]" class="text-primary no-underline text-sm">
                     Ver detalle
                   </a>
                 </div>
 
-                <div class="vs">VS</div>
+                <div class="text-2xl font-bold text-gray-300 self-center text-center hidden md:block">VS</div>
 
-                <div class="objeto-col perdido">
-                  <span class="tipo-label">Perdido</span>
-                  <div class="objeto-preview">
+                <div class="text-center">
+                  <span class="inline-block px-3 py-1 rounded text-xs font-semibold mb-4 bg-red-100 text-red-800">Perdido</span>
+                  <div class="w-36 h-36 mx-auto mb-4 rounded-lg overflow-hidden bg-gray-100">
                     @if (coincidencia.objetoPerdido.fotos?.length) {
-                      <img [src]="coincidencia.objetoPerdido.fotos![0].thumbnailUrl" alt="">
+                      <img [src]="coincidencia.objetoPerdido.fotos![0].thumbnailUrl" alt="" class="w-full h-full object-cover">
                     } @else {
-                      <div class="no-img">❓</div>
+                      <div class="h-full flex items-center justify-center text-5xl">❓</div>
                     }
                   </div>
-                  <p class="objeto-titulo">{{ coincidencia.objetoPerdido.titulo }}</p>
-                  <p class="objeto-usuario">
+                  <p class="font-semibold m-0 mt-1">{{ coincidencia.objetoPerdido.titulo }}</p>
+                  <p class="text-sm text-gray-500 m-0 mt-1">
                     Reportado por: {{ coincidencia.objetoPerdido.usuario.nombre }}
                   </p>
-                  <p class="objeto-email">{{ coincidencia.objetoPerdido.usuario.email }}</p>
+                  <p class="text-sm text-gray-500 m-0">{{ coincidencia.objetoPerdido.usuario.email }}</p>
                 </div>
               </div>
 
-              <div class="coincidencia-footer">
-                <span class="fecha">{{ coincidencia.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                <span class="text-sm text-gray-400">{{ coincidencia.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
 
                 @if (coincidencia.estado === 'PENDIENTE') {
-                  <div class="acciones">
+                  <div class="flex gap-4">
                     <button
-                      class="btn btn-success"
+                      class="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-70"
                       (click)="confirmar(coincidencia)"
                       [disabled]="procesando()"
                     >
                       Confirmar
                     </button>
                     <button
-                      class="btn btn-outline"
+                      class="px-4 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 disabled:opacity-70"
                       (click)="descartar(coincidencia)"
                       [disabled]="procesando()"
                     >
@@ -128,7 +132,8 @@ interface Coincidencia {
                     </button>
                   </div>
                 } @else {
-                  <span class="estado-badge" [class]="'estado-' + coincidencia.estado.toLowerCase()">
+                  <span class="px-3 py-1 rounded text-xs font-semibold"
+                    [class]="coincidencia.estado === 'CONFIRMADA' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'">
                     {{ coincidencia.estado }}
                   </span>
                 }
@@ -139,234 +144,7 @@ interface Coincidencia {
       }
     </div>
   `,
-  styles: [`
-    .coincidencias-container {
-      padding: 2rem;
-    }
-
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    .header h1 {
-      margin: 0 0 0.5rem;
-    }
-
-    .header p {
-      color: #666;
-      margin: 0;
-    }
-
-    .filtros {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .filtros button {
-      padding: 0.5rem 1.5rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-
-    .filtros button.active {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-
-    .loading, .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-      background: white;
-      border-radius: 8px;
-    }
-
-    .coincidencias-lista {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .coincidencia-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      padding: 2rem;
-    }
-
-    .puntuacion {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .puntuacion-circulo {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-    }
-
-    .puntuacion-circulo.alta { background: #4caf50; }
-    .puntuacion-circulo.media { background: #ff9800; }
-    .puntuacion-circulo.baja { background: #9e9e9e; }
-
-    .puntuacion-label {
-      display: block;
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
-      color: #666;
-    }
-
-    .objetos-comparacion {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 2rem;
-      align-items: start;
-    }
-
-    .objeto-col {
-      text-align: center;
-    }
-
-    .tipo-label {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .encontrado .tipo-label {
-      background: #e8f5e9;
-      color: #388e3c;
-    }
-
-    .perdido .tipo-label {
-      background: #ffebee;
-      color: #c62828;
-    }
-
-    .objeto-preview {
-      width: 150px;
-      height: 150px;
-      margin: 0 auto 1rem;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #f5f5f5;
-    }
-
-    .objeto-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .no-img {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-    }
-
-    .objeto-codigo {
-      font-size: 0.75rem;
-      color: #999;
-      margin: 0;
-    }
-
-    .objeto-titulo {
-      font-weight: 600;
-      margin: 0.25rem 0;
-    }
-
-    .objeto-usuario, .objeto-email {
-      font-size: 0.875rem;
-      color: #666;
-      margin: 0.25rem 0;
-    }
-
-    .ver-link {
-      color: #667eea;
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
-
-    .vs {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #ccc;
-      align-self: center;
-    }
-
-    .coincidencia-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #eee;
-    }
-
-    .fecha {
-      font-size: 0.875rem;
-      color: #999;
-    }
-
-    .acciones {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn {
-      padding: 0.5rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .btn-success { background: #4caf50; color: white; }
-    .btn-outline { background: white; border: 1px solid #ddd; color: #666; }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .estado-badge {
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .estado-confirmada { background: #e8f5e9; color: #388e3c; }
-    .estado-descartada { background: #f5f5f5; color: #616161; }
-
-    @media (max-width: 768px) {
-      .objetos-comparacion {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .vs {
-        display: none;
-      }
-    }
-  `]
+  styles: []
 })
 export class CoincidenciasAdminComponent implements OnInit {
   private api = inject(ApiService);

@@ -4,6 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { DividerModule } from 'primeng/divider';
+import { CardModule } from 'primeng/card';
+
 interface Categoria {
   id: number;
   nombre: string;
@@ -23,579 +36,452 @@ interface Ubicacion {
 @Component({
   selector: 'app-objeto-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+    DatePickerModule,
+    InputNumberModule,
+    FileUploadModule,
+    ToastModule,
+    ConfirmDialogModule,
+    DividerModule,
+    CardModule
+  ],
+  providers: [MessageService, ConfirmationService],
   template: `
-    <div class="form-container">
-      <div class="form-header">
-        <h1>{{ isEdit() ? 'Editar objeto' : 'Registrar objeto' }}</h1>
-        <a routerLink="/admin/objetos" class="btn-back">← Volver</a>
+    <p-toast />
+    <p-confirmDialog />
+
+    <div class="max-w-4xl mx-auto p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="m-0 text-2xl font-bold text-gray-800">{{ isEdit() ? 'Editar objeto' : 'Registrar objeto' }}</h1>
+        <a routerLink="/admin/objetos" class="text-gray-500 no-underline hover:text-gray-700 flex items-center gap-2">
+          <i class="pi pi-arrow-left"></i> Volver
+        </a>
       </div>
 
       @if (loadingData()) {
-        <div class="loading">Cargando...</div>
+        <div class="text-center py-12 text-gray-500">
+          <i class="pi pi-spin pi-spinner text-4xl mb-4 block"></i>
+          <p>Cargando...</p>
+        </div>
       } @else {
-        @if (error()) {
-          <div class="error-message">{{ error() }}</div>
-        }
+        <form (ngSubmit)="guardar()" class="bg-white rounded-xl shadow-md">
+          <!-- Informacion basica -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-info-circle text-primary"></i>
+              Informacion basica
+            </h2>
 
-        <form (ngSubmit)="guardar()" class="objeto-form">
-          <div class="form-section">
-            <h2>Informacion basica</h2>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="tipo">Tipo *</label>
-                <select id="tipo" [(ngModel)]="formData.tipo" name="tipo" required>
-                  <option value="ENCONTRADO">Encontrado</option>
-                  <option value="PERDIDO">Perdido</option>
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label for="tipo" class="font-medium text-sm">Tipo *</label>
+                <p-select
+                  id="tipo"
+                  [(ngModel)]="formData.tipo"
+                  name="tipo"
+                  [options]="tiposOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona tipo"
+                  styleClass="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="categoria">Categoria *</label>
-                <select id="categoria" [(ngModel)]="formData.categoriaId" name="categoriaId" required>
-                  <option value="">Selecciona categoria</option>
-                  @for (cat of categorias(); track cat.id) {
-                    <option [value]="cat.id">{{ cat.nombre }}</option>
-                  }
-                </select>
+              <div class="flex flex-col gap-2">
+                <label for="categoria" class="font-medium text-sm">Categoria *</label>
+                <p-select
+                  id="categoria"
+                  [(ngModel)]="formData.categoriaId"
+                  name="categoriaId"
+                  [options]="categoriasOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona categoria"
+                  [filter]="true"
+                  filterPlaceholder="Buscar..."
+                  styleClass="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="titulo">Titulo *</label>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="titulo" class="font-medium text-sm">Titulo *</label>
               <input
-                type="text"
+                pInputText
                 id="titulo"
                 [(ngModel)]="formData.titulo"
                 name="titulo"
-                required
                 placeholder="Descripcion breve del objeto"
-              >
+                class="w-full"
+              />
             </div>
 
-            <div class="form-group">
-              <label for="descripcion">Descripcion</label>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="descripcion" class="font-medium text-sm">Descripcion</label>
               <textarea
+                pTextarea
                 id="descripcion"
                 [(ngModel)]="formData.descripcion"
                 name="descripcion"
                 rows="4"
                 placeholder="Descripcion detallada del objeto"
+                class="w-full"
+                [autoResize]="true"
               ></textarea>
             </div>
           </div>
 
-          <div class="form-section">
-            <h2>Caracteristicas</h2>
+          <!-- Caracteristicas -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-tag text-primary"></i>
+              Caracteristicas
+            </h2>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="marca">Marca</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label for="marca" class="font-medium text-sm">Marca</label>
                 <input
-                  type="text"
+                  pInputText
                   id="marca"
                   [(ngModel)]="formData.marca"
                   name="marca"
                   placeholder="Ej: Samsung, Nike..."
-                >
+                  class="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="modelo">Modelo</label>
+              <div class="flex flex-col gap-2">
+                <label for="modelo" class="font-medium text-sm">Modelo</label>
                 <input
-                  type="text"
+                  pInputText
                   id="modelo"
                   [(ngModel)]="formData.modelo"
                   name="modelo"
                   placeholder="Ej: Galaxy S21..."
-                >
+                  class="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="color">Color</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div class="flex flex-col gap-2">
+                <label for="color" class="font-medium text-sm">Color</label>
                 <input
-                  type="text"
+                  pInputText
                   id="color"
                   [(ngModel)]="formData.color"
                   name="color"
                   placeholder="Ej: Negro, Azul..."
-                >
+                  class="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="numeroSerie">Numero de serie</label>
+              <div class="flex flex-col gap-2">
+                <label for="numeroSerie" class="font-medium text-sm">Numero de serie</label>
                 <input
-                  type="text"
+                  pInputText
                   id="numeroSerie"
                   [(ngModel)]="formData.numeroSerie"
                   name="numeroSerie"
-                >
+                  class="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="valorEstimado">Valor estimado (€)</label>
-              <input
-                type="number"
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="valorEstimado" class="font-medium text-sm">Valor estimado</label>
+              <p-inputNumber
                 id="valorEstimado"
                 [(ngModel)]="formData.valorEstimado"
                 name="valorEstimado"
-                min="0"
-                step="0.01"
-              >
+                mode="currency"
+                currency="EUR"
+                locale="es-ES"
+                [minFractionDigits]="2"
+                placeholder="0,00"
+                styleClass="w-full"
+              />
             </div>
           </div>
 
-          <div class="form-section">
-            <h2>Hallazgo</h2>
+          <!-- Hallazgo -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-map-marker text-primary"></i>
+              Hallazgo
+            </h2>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="fechaHallazgo">Fecha de hallazgo *</label>
-                <input
-                  type="date"
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label for="fechaHallazgo" class="font-medium text-sm">Fecha de hallazgo *</label>
+                <p-datepicker
                   id="fechaHallazgo"
-                  [(ngModel)]="formData.fechaHallazgo"
+                  [(ngModel)]="fechaHallazgoDate"
                   name="fechaHallazgo"
-                  required
-                >
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  [showButtonBar]="true"
+                  styleClass="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="horaHallazgo">Hora</label>
-                <input
-                  type="time"
+              <div class="flex flex-col gap-2">
+                <label for="horaHallazgo" class="font-medium text-sm">Hora</label>
+                <p-datepicker
                   id="horaHallazgo"
-                  [(ngModel)]="formData.horaHallazgo"
+                  [(ngModel)]="horaHallazgoDate"
                   name="horaHallazgo"
-                >
+                  [timeOnly]="true"
+                  [showIcon]="true"
+                  styleClass="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="direccionHallazgo">Direccion / Lugar de hallazgo *</label>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="direccionHallazgo" class="font-medium text-sm">Direccion / Lugar de hallazgo *</label>
               <input
-                type="text"
+                pInputText
                 id="direccionHallazgo"
                 [(ngModel)]="formData.direccionHallazgo"
                 name="direccionHallazgo"
                 placeholder="Calle, zona o punto de referencia"
-                required
-              >
+                class="w-full"
+              />
             </div>
           </div>
 
-          <div class="form-section">
-            <h2>Datos del hallador</h2>
+          <!-- Datos del hallador -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-user text-primary"></i>
+              Datos del hallador
+            </h2>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="halladorNombre">Nombre completo *</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label for="halladorNombre" class="font-medium text-sm">Nombre completo *</label>
                 <input
-                  type="text"
+                  pInputText
                   id="halladorNombre"
                   [(ngModel)]="formData.halladorNombre"
                   name="halladorNombre"
-                  placeholder="Nombre y apellidos de quien encuentra el objeto"
-                  required
-                >
+                  placeholder="Nombre y apellidos"
+                  class="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="halladorTelefono">Telefono *</label>
+              <div class="flex flex-col gap-2">
+                <label for="halladorTelefono" class="font-medium text-sm">Telefono *</label>
                 <input
-                  type="tel"
+                  pInputText
                   id="halladorTelefono"
                   [(ngModel)]="formData.halladorTelefono"
                   name="halladorTelefono"
                   placeholder="Telefono de contacto"
-                  required
-                >
+                  class="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="halladorDni">DNI / NIE</label>
-                <input
-                  type="text"
-                  id="halladorDni"
-                  [(ngModel)]="formData.halladorDni"
-                  name="halladorDni"
-                  placeholder="Documento de identidad (opcional)"
-                >
-              </div>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="halladorDni" class="font-medium text-sm">DNI / NIE</label>
+              <input
+                pInputText
+                id="halladorDni"
+                [(ngModel)]="formData.halladorDni"
+                name="halladorDni"
+                placeholder="Documento de identidad (opcional)"
+                class="w-full md:w-1/2"
+              />
             </div>
 
-            <div class="form-group">
-              <label for="halladorObservaciones">Observaciones</label>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="halladorObservaciones" class="font-medium text-sm">Observaciones</label>
               <textarea
+                pTextarea
                 id="halladorObservaciones"
                 [(ngModel)]="formData.halladorObservaciones"
                 name="halladorObservaciones"
                 rows="3"
                 placeholder="Circunstancias del hallazgo, estado del objeto, etc."
+                class="w-full"
+                [autoResize]="true"
               ></textarea>
             </div>
           </div>
 
-          <div class="form-section">
-            <h2>Ubicacion en almacen</h2>
+          <!-- Ubicacion en almacen -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-box text-primary"></i>
+              Ubicacion en almacen
+            </h2>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="almacen">Almacen *</label>
-                <select
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <label for="almacen" class="font-medium text-sm">Almacen *</label>
+                <p-select
                   id="almacen"
                   [(ngModel)]="selectedAlmacenId"
                   name="almacenId"
-                  (change)="onAlmacenChange()"
-                  required
-                >
-                  <option value="">Selecciona almacen</option>
-                  @for (almacen of almacenes(); track almacen.id) {
-                    <option [value]="almacen.id">{{ almacen.nombre }}</option>
-                  }
-                </select>
+                  [options]="almacenesOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona almacen"
+                  (onChange)="onAlmacenChange()"
+                  styleClass="w-full"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="ubicacion">Ubicacion *</label>
-                <select
+              <div class="flex flex-col gap-2">
+                <label for="ubicacion" class="font-medium text-sm">Ubicacion *</label>
+                <p-select
                   id="ubicacion"
                   [(ngModel)]="formData.ubicacionAlmacenId"
                   name="ubicacionAlmacenId"
+                  [options]="ubicacionesOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona ubicacion"
                   [disabled]="!selectedAlmacenId"
-                  required
-                >
-                  <option value="">Selecciona ubicacion</option>
-                  @for (ub of ubicacionesFiltradas(); track ub.id) {
-                    <option [value]="ub.id">{{ ub.codigo }}</option>
-                  }
-                </select>
+                  styleClass="w-full"
+                />
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="estado">Estado</label>
-              <select id="estado" [(ngModel)]="formData.estado" name="estado">
-                <option value="REGISTRADO">Registrado</option>
-                <option value="EN_ALMACEN">En almacen</option>
-                <option value="RECLAMADO">Reclamado</option>
-                <option value="ENTREGADO">Entregado</option>
-                <option value="SUBASTA">En subasta</option>
-                <option value="DONADO">Donado</option>
-                <option value="RECICLADO">Reciclado</option>
-                <option value="DESTRUIDO">Destruido</option>
-              </select>
+            <div class="flex flex-col gap-2 mt-6">
+              <label for="estado" class="font-medium text-sm">Estado</label>
+              <p-select
+                id="estado"
+                [(ngModel)]="formData.estado"
+                name="estado"
+                [options]="estadosOptions"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full md:w-1/2"
+              />
             </div>
           </div>
 
-          <div class="form-section">
-            <h2>Fotos</h2>
+          <!-- Fotos -->
+          <div class="p-8 border-b border-gray-200">
+            <h2 class="m-0 mb-6 text-lg text-gray-800 flex items-center gap-2">
+              <i class="pi pi-images text-primary"></i>
+              Fotos
+            </h2>
 
             @if (fotosExistentes().length > 0) {
-              <div class="fotos-existentes">
+              <div class="flex flex-wrap gap-4 mb-6">
                 @for (foto of fotosExistentes(); track foto.id) {
-                  <div class="foto-item">
-                    <img [src]="foto.thumbnailUrl || foto.url" alt="Foto">
-                    <button type="button" class="btn-eliminar-foto" (click)="eliminarFoto(foto.id)">
-                      &times;
+                  <div class="relative group">
+                    <img [src]="foto.thumbnailUrl || foto.url" alt="Foto" class="w-24 h-24 object-cover rounded-lg shadow-sm">
+                    <button
+                      type="button"
+                      class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      (click)="confirmarEliminarFoto(foto.id)"
+                    >
+                      <span class="flex items-center justify-center w-6 h-6 rounded-full bg-red-500 text-white text-xs">
+                        <i class="pi pi-times"></i>
+                      </span>
                     </button>
                   </div>
                 }
               </div>
             }
 
-            <div class="upload-area" (click)="fileInput.click()">
-              <input
-                #fileInput
-                type="file"
-                accept="image/*"
-                multiple
-                (change)="onFilesSelected($event)"
-                hidden
-              >
-              <span class="upload-icon">📷</span>
-              <span>Haz clic para subir fotos</span>
-              <small>JPG, PNG. Max 5MB por imagen</small>
-            </div>
+            <p-fileUpload
+              mode="basic"
+              name="fotos"
+              accept="image/*"
+              [multiple]="true"
+              [maxFileSize]="5000000"
+              chooseLabel="Seleccionar fotos"
+              chooseIcon="pi pi-camera"
+              (onSelect)="onFilesSelectedPrime($event)"
+              [auto]="false"
+              styleClass="w-full"
+            />
 
             @if (nuevasFotos.length > 0) {
-              <div class="fotos-nuevas">
-                <p>Fotos a subir:</p>
+              <div class="mt-4">
+                <p class="text-sm text-gray-500 mb-2">Fotos a subir ({{ nuevasFotos.length }}):</p>
                 @for (file of nuevasFotos; track file.name; let i = $index) {
-                  <div class="file-item">
-                    <span>{{ file.name }}</span>
-                    <button type="button" (click)="removerFoto(i)">&times;</button>
+                  <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2">
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-image text-gray-400"></i>
+                      <span class="text-sm">{{ file.name }}</span>
+                      <span class="text-xs text-gray-400">({{ (file.size / 1024).toFixed(0) }} KB)</span>
+                    </div>
+                    <p-button
+                      icon="pi pi-times"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="danger"
+                      (onClick)="removerFoto(i)"
+                    />
                   </div>
                 }
               </div>
             }
           </div>
 
-          <div class="form-actions">
-            <a routerLink="/admin/objetos" class="btn btn-outline">Cancelar</a>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">
-              {{ saving() ? 'Guardando...' : (isEdit() ? 'Guardar cambios' : 'Registrar objeto') }}
-            </button>
+          <!-- Footer -->
+          <div class="flex justify-end gap-4 px-8 py-6 bg-gray-50 rounded-b-xl">
+            <a routerLink="/admin/objetos">
+              <p-button
+                label="Cancelar"
+                severity="secondary"
+                [outlined]="true"
+              />
+            </a>
+            <p-button
+              [label]="saving() ? 'Guardando...' : (isEdit() ? 'Guardar cambios' : 'Registrar objeto')"
+              icon="pi pi-check"
+              [loading]="saving()"
+              (onClick)="guardar()"
+            />
           </div>
         </form>
       }
     </div>
   `,
-  styles: [`
-    .form-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      margin: 0;
-    }
-
-    .btn-back {
-      color: #666;
-      text-decoration: none;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .error-message {
-      background: #ffebee;
-      color: #c62828;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-    }
-
-    .objeto-form {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .form-section {
-      padding: 2rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .form-section:last-of-type {
-      border-bottom: none;
-    }
-
-    h2 {
-      margin: 0 0 1.5rem;
-      font-size: 1.125rem;
-      color: #333;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      font-size: 0.875rem;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
-      color: #333;
-      background-color: white;
-    }
-
-    select option {
-      color: #333;
-      background-color: white;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    .fotos-existentes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .foto-item {
-      position: relative;
-      width: 100px;
-      height: 100px;
-    }
-
-    .foto-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .btn-eliminar-foto {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: none;
-      background: #e53935;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    .upload-area:hover {
-      border-color: #667eea;
-    }
-
-    .upload-icon {
-      display: block;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .upload-area small {
-      display: block;
-      color: #999;
-      margin-top: 0.5rem;
-    }
-
-    .fotos-nuevas {
-      margin-top: 1rem;
-    }
-
-    .fotos-nuevas p {
-      font-size: 0.875rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem;
-      background: #f5f5f5;
-      border-radius: 4px;
-      margin-bottom: 0.5rem;
-    }
-
-    .file-item button {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      padding: 1.5rem 2rem;
-      background: #f9f9f9;
-      border-radius: 0 0 12px 12px;
-    }
-
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #ddd;
-      color: #666;
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  `]
+  styles: []
 })
 export class ObjetoFormComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   isEdit = signal(false);
   loadingData = signal(true);
   saving = signal(false);
-  error = signal('');
 
   categorias = signal<Categoria[]>([]);
   almacenes = signal<Almacen[]>([]);
   ubicacionesFiltradas = signal<Ubicacion[]>([]);
   fotosExistentes = signal<any[]>([]);
 
-  selectedAlmacenId = '';
+  selectedAlmacenId: string | null = null;
   nuevasFotos: File[] = [];
+
+  // Date objects for p-datepicker
+  fechaHallazgoDate: Date | null = null;
+  horaHallazgoDate: Date | null = null;
 
   formData = {
     tipo: 'ENCONTRADO',
-    categoriaId: '',
+    categoriaId: null as string | null,
     titulo: '',
     descripcion: '',
     marca: '',
@@ -610,9 +496,29 @@ export class ObjetoFormComponent implements OnInit {
     halladorTelefono: '',
     halladorDni: '',
     halladorObservaciones: '',
-    ubicacionAlmacenId: '',
+    ubicacionAlmacenId: null as string | null,
     estado: 'REGISTRADO'
   };
+
+  tiposOptions = [
+    { label: 'Encontrado', value: 'ENCONTRADO' },
+    { label: 'Perdido', value: 'PERDIDO' }
+  ];
+
+  estadosOptions = [
+    { label: 'Registrado', value: 'REGISTRADO' },
+    { label: 'En almacen', value: 'EN_ALMACEN' },
+    { label: 'Reclamado', value: 'RECLAMADO' },
+    { label: 'Entregado', value: 'ENTREGADO' },
+    { label: 'En subasta', value: 'SUBASTA' },
+    { label: 'Donado', value: 'DONADO' },
+    { label: 'Reciclado', value: 'RECICLADO' },
+    { label: 'Destruido', value: 'DESTRUIDO' }
+  ];
+
+  categoriasOptions = signal<{label: string, value: string}[]>([]);
+  almacenesOptions = signal<{label: string, value: string}[]>([]);
+  ubicacionesOptions = signal<{label: string, value: string}[]>([]);
 
   ngOnInit() {
     const id = this.route.snapshot.params['id'];
@@ -625,7 +531,7 @@ export class ObjetoFormComponent implements OnInit {
 
     if (!id) {
       this.loadingData.set(false);
-      this.formData.fechaHallazgo = new Date().toISOString().split('T')[0];
+      this.fechaHallazgoDate = new Date();
     }
   }
 
@@ -634,7 +540,7 @@ export class ObjetoFormComponent implements OnInit {
       next: (objeto) => {
         this.formData = {
           tipo: objeto.tipo,
-          categoriaId: objeto.categoria?.id?.toString() || '',
+          categoriaId: objeto.categoria?.id?.toString() || null,
           titulo: objeto.titulo,
           descripcion: objeto.descripcion || '',
           marca: objeto.marca || '',
@@ -649,9 +555,20 @@ export class ObjetoFormComponent implements OnInit {
           halladorTelefono: objeto.halladorTelefono || '',
           halladorDni: objeto.halladorDni || '',
           halladorObservaciones: objeto.halladorObservaciones || '',
-          ubicacionAlmacenId: objeto.ubicacionAlmacen?.id?.toString() || '',
+          ubicacionAlmacenId: objeto.ubicacionAlmacen?.id?.toString() || null,
           estado: objeto.estado
         };
+
+        // Set date objects
+        if (objeto.fechaHallazgo) {
+          this.fechaHallazgoDate = new Date(objeto.fechaHallazgo);
+        }
+        if (objeto.horaHallazgo) {
+          const [hours, minutes] = objeto.horaHallazgo.split(':');
+          this.horaHallazgoDate = new Date();
+          this.horaHallazgoDate.setHours(+hours, +minutes);
+        }
+
         if (objeto.ubicacionAlmacen?.almacen) {
           this.selectedAlmacenId = objeto.ubicacionAlmacen.almacen.id.toString();
           this.onAlmacenChange();
@@ -660,7 +577,11 @@ export class ObjetoFormComponent implements OnInit {
         this.loadingData.set(false);
       },
       error: (err) => {
-        this.error.set(err.message || 'Error al cargar el objeto');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al cargar el objeto'
+        });
         this.loadingData.set(false);
       }
     });
@@ -668,31 +589,40 @@ export class ObjetoFormComponent implements OnInit {
 
   private loadCategorias() {
     this.api.get<any>('/categorias').subscribe({
-      next: (response) => this.categorias.set(response.data || response)
+      next: (response) => {
+        const cats = response.data || response;
+        this.categorias.set(cats);
+        this.categoriasOptions.set(cats.map((c: Categoria) => ({ label: c.nombre, value: c.id.toString() })));
+      }
     });
   }
 
   private loadAlmacenes() {
     this.api.get<Almacen[]>('/admin/almacenes').subscribe({
-      next: (almacenes) => this.almacenes.set(almacenes)
+      next: (almacenes) => {
+        this.almacenes.set(almacenes);
+        this.almacenesOptions.set(almacenes.map(a => ({ label: a.nombre, value: a.id.toString() })));
+      }
     });
   }
 
   onAlmacenChange() {
     if (!this.selectedAlmacenId) {
       this.ubicacionesFiltradas.set([]);
-      this.formData.ubicacionAlmacenId = '';
+      this.ubicacionesOptions.set([]);
+      this.formData.ubicacionAlmacenId = null;
       return;
     }
 
-    const almacen = this.almacenes().find(a => a.id === +this.selectedAlmacenId);
-    this.ubicacionesFiltradas.set(almacen?.ubicaciones || []);
+    const almacen = this.almacenes().find(a => a.id === +this.selectedAlmacenId!);
+    const ubicaciones = almacen?.ubicaciones || [];
+    this.ubicacionesFiltradas.set(ubicaciones);
+    this.ubicacionesOptions.set(ubicaciones.map(u => ({ label: u.codigo, value: u.id.toString() })));
   }
 
-  onFilesSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      this.nuevasFotos = [...this.nuevasFotos, ...Array.from(input.files)].slice(0, 10);
+  onFilesSelectedPrime(event: any) {
+    if (event.files) {
+      this.nuevasFotos = [...this.nuevasFotos, ...event.files].slice(0, 10);
     }
   }
 
@@ -700,24 +630,56 @@ export class ObjetoFormComponent implements OnInit {
     this.nuevasFotos.splice(index, 1);
   }
 
-  eliminarFoto(fotoId: number) {
-    if (!confirm('¿Eliminar esta foto?')) return;
+  confirmarEliminarFoto(fotoId: number) {
+    this.confirmationService.confirm({
+      message: '¿Eliminar esta foto?',
+      header: 'Confirmar',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.eliminarFoto(fotoId)
+    });
+  }
 
+  eliminarFoto(fotoId: number) {
     const objetoId = this.route.snapshot.params['id'];
     this.api.delete(`/admin/objetos/${objetoId}/fotos/${fotoId}`).subscribe({
       next: () => {
         this.fotosExistentes.set(this.fotosExistentes().filter(f => f.id !== fotoId));
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Eliminada',
+          detail: 'Foto eliminada correctamente'
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al eliminar la foto'
+        });
       }
     });
   }
 
   guardar() {
-    this.error.set('');
+    // Convert dates to strings
+    if (this.fechaHallazgoDate) {
+      this.formData.fechaHallazgo = this.fechaHallazgoDate.toISOString().split('T')[0];
+    }
+    if (this.horaHallazgoDate) {
+      this.formData.horaHallazgo = this.horaHallazgoDate.toTimeString().slice(0, 5);
+    }
 
     if (!this.formData.titulo || !this.formData.categoriaId || !this.formData.fechaHallazgo ||
         !this.formData.direccionHallazgo || !this.formData.halladorNombre || !this.formData.halladorTelefono ||
         !this.selectedAlmacenId || !this.formData.ubicacionAlmacenId) {
-      this.error.set('Por favor, completa todos los campos obligatorios');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos requeridos',
+        detail: 'Por favor, completa todos los campos obligatorios'
+      });
       return;
     }
 
@@ -742,11 +704,20 @@ export class ObjetoFormComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.router.navigate(['/admin/objetos']);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Guardado',
+          detail: this.isEdit() ? 'Objeto actualizado correctamente' : 'Objeto registrado correctamente'
+        });
+        setTimeout(() => this.router.navigate(['/admin/objetos']), 1000);
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err.message || 'Error al guardar');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Error al guardar'
+        });
       }
     });
   }

@@ -9,23 +9,23 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="auth-container">
-      <div class="auth-card">
-        <h1>Nueva contraseña</h1>
+    <div class="min-h-[calc(100vh-120px)] flex items-center justify-center p-8 bg-gray-100">
+      <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-center mb-8 text-gray-800 text-2xl font-bold">Nueva contraseña</h1>
 
         @if (success()) {
-          <div class="success-message">
-            <p>{{ success() }}</p>
-            <a routerLink="/login" class="btn btn-primary">Ir a iniciar sesion</a>
+          <div class="text-center">
+            <p class="text-green-600 mb-6">{{ success() }}</p>
+            <a routerLink="/login" class="block w-full p-3 bg-primary text-white rounded font-medium text-center hover:bg-primary-dark">Ir a iniciar sesion</a>
           </div>
         } @else {
           @if (error()) {
-            <div class="error-message">{{ error() }}</div>
+            <div class="bg-red-50 text-red-600 p-3 rounded mb-4 text-center">{{ error() }}</div>
           }
 
           <form (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label for="password">Nueva contraseña</label>
+            <div class="mb-4">
+              <label for="password" class="block mb-2 font-medium">Nueva contraseña</label>
               <input
                 type="password"
                 id="password"
@@ -33,22 +33,24 @@ import { AuthService } from '../../../core/services/auth.service';
                 name="password"
                 required
                 minlength="8"
+                class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-primary"
               >
-              <small>Minimo 8 caracteres</small>
+              <small class="text-gray-500 text-xs">Minimo 8 caracteres</small>
             </div>
 
-            <div class="form-group">
-              <label for="confirmPassword">Confirmar contraseña</label>
+            <div class="mb-4">
+              <label for="confirmPassword" class="block mb-2 font-medium">Confirmar contraseña</label>
               <input
                 type="password"
                 id="confirmPassword"
                 [(ngModel)]="confirmPassword"
                 name="confirmPassword"
                 required
+                class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-primary"
               >
             </div>
 
-            <button type="submit" class="btn btn-primary" [disabled]="loading()">
+            <button type="submit" class="w-full p-3 mt-4 bg-primary text-white rounded font-medium hover:bg-primary-dark disabled:opacity-70 disabled:cursor-not-allowed" [disabled]="loading()">
               {{ loading() ? 'Guardando...' : 'Guardar nueva contraseña' }}
             </button>
           </form>
@@ -56,90 +58,7 @@ import { AuthService } from '../../../core/services/auth.service';
       </div>
     </div>
   `,
-  styles: [`
-    .auth-container {
-      min-height: calc(100vh - 120px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background: #f5f5f5;
-    }
-
-    .auth-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    small {
-      color: #666;
-      font-size: 0.75rem;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 1rem;
-      text-decoration: none;
-      display: block;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .error-message {
-      background: #fee;
-      color: #c00;
-      padding: 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .success-message {
-      text-align: center;
-    }
-
-    .success-message p {
-      color: #080;
-      margin-bottom: 1.5rem;
-    }
-  `]
+  styles: []
 })
 export class ResetPasswordComponent implements OnInit {
   private authService = inject(AuthService);

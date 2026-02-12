@@ -40,27 +40,28 @@ interface Puja {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="subasta-container">
+    <div class="max-w-6xl mx-auto p-8">
       @if (loading()) {
-        <div class="loading">Cargando subasta...</div>
+        <div class="text-center py-12 text-gray-500">Cargando subasta...</div>
       } @else if (error()) {
-        <div class="error">{{ error() }}</div>
+        <div class="text-center py-12 text-red-600">{{ error() }}</div>
       } @else if (subasta()) {
-        <div class="subasta-content">
-          <div class="galeria-section">
-            <div class="imagen-principal">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div class="lg:sticky lg:top-8 lg:self-start">
+            <div class="w-full aspect-square bg-gray-100 rounded-xl overflow-hidden">
               @if (imagenActual()) {
-                <img [src]="imagenActual()" alt="Lote">
+                <img [src]="imagenActual()" alt="Lote" class="w-full h-full object-contain">
               } @else {
-                <div class="no-imagen">Sin imagenes</div>
+                <div class="h-full flex items-center justify-center text-gray-400">Sin imagenes</div>
               }
             </div>
             @if (todasImagenes().length > 1) {
-              <div class="miniaturas">
+              <div class="flex gap-2 mt-4 overflow-x-auto">
                 @for (img of todasImagenes(); track img) {
                   <img
                     [src]="img"
-                    [class.activa]="imagenActual() === img"
+                    class="w-20 h-20 object-cover rounded cursor-pointer transition-opacity duration-200"
+                    [class]="imagenActual() === img ? 'opacity-100' : 'opacity-60 hover:opacity-100'"
                     (click)="seleccionarImagen(img)"
                     alt="Miniatura"
                   >
@@ -68,19 +69,19 @@ interface Puja {
               </div>
             }
 
-            <div class="objetos-lote">
-              <h3>Objetos incluidos ({{ subasta()!.lote.objetos.length }})</h3>
-              <div class="objetos-lista">
+            <div class="mt-8 pt-8 border-t border-gray-200">
+              <h3 class="m-0 mb-4 text-base">Objetos incluidos ({{ subasta()!.lote.objetos.length }})</h3>
+              <div class="flex flex-col gap-3">
                 @for (objeto of subasta()!.lote.objetos; track objeto.id) {
-                  <div class="objeto-item">
-                    <div class="objeto-thumb">
+                  <div class="flex gap-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-[50px] h-[50px] rounded overflow-hidden bg-gray-200 flex-shrink-0">
                       @if (objeto.fotos?.length > 0) {
-                        <img [src]="objeto.fotos[0].thumbnailUrl" [alt]="objeto.titulo">
+                        <img [src]="objeto.fotos[0].thumbnailUrl" [alt]="objeto.titulo" class="w-full h-full object-cover">
                       }
                     </div>
-                    <div class="objeto-info">
-                      <strong>{{ objeto.titulo }}</strong>
-                      <span class="categoria">{{ objeto.categoria?.nombre }}</span>
+                    <div class="flex flex-col justify-center">
+                      <strong class="text-sm">{{ objeto.titulo }}</strong>
+                      <span class="text-xs text-gray-400">{{ objeto.categoria?.nombre }}</span>
                     </div>
                   </div>
                 }
@@ -88,44 +89,50 @@ interface Puja {
             </div>
           </div>
 
-          <div class="info-section">
-            <span class="codigo">Lote {{ subasta()!.lote.codigo }}</span>
-            <h1>{{ subasta()!.lote.nombre }}</h1>
+          <div class="py-4">
+            <span class="text-sm text-gray-400 uppercase">Lote {{ subasta()!.lote.codigo }}</span>
+            <h1 class="mt-2 mb-6 text-3xl">{{ subasta()!.lote.nombre }}</h1>
 
-            <div class="estado-tiempo">
-              <span class="estado" [class]="'estado-' + subasta()!.estado.toLowerCase()">
+            <div class="flex items-center gap-4 mb-6">
+              <span class="px-4 py-1.5 rounded text-sm font-semibold"
+                [ngClass]="{
+                  'bg-green-500 text-white': subasta()!.estado.toLowerCase() === 'activa',
+                  'bg-orange-500 text-white': subasta()!.estado.toLowerCase() === 'programada',
+                  'bg-gray-500 text-white': subasta()!.estado.toLowerCase() === 'cerrada' || subasta()!.estado.toLowerCase() === 'adjudicada'
+                }">
                 {{ getEstadoLabel(subasta()!.estado) }}
               </span>
               @if (subasta()!.estado === 'ACTIVA') {
-                <span class="tiempo-restante">
+                <span class="text-red-600 font-medium">
                   Termina en: {{ tiempoRestante() }}
                 </span>
               }
             </div>
 
-            <div class="precios-box">
-              <div class="precio-actual">
-                <span class="label">Puja actual</span>
-                <span class="valor">{{ subasta()!.precioActual | currency:'EUR' }}</span>
+            <div class="bg-gray-50 p-6 rounded-xl mb-6">
+              <div class="text-center mb-2">
+                <span class="block text-sm text-gray-500">Puja actual</span>
+                <span class="text-4xl font-bold text-primary">{{ subasta()!.precioActual | currency:'EUR' }}</span>
               </div>
-              <div class="precio-salida">
+              <div class="text-center text-sm text-gray-400">
                 Precio salida: {{ subasta()!.precioSalida | currency:'EUR' }}
               </div>
             </div>
 
             @if (subasta()!.estado === 'ACTIVA') {
               @if (authService.isAuthenticated()) {
-                <div class="pujar-form">
-                  <label>Tu puja (minimo {{ pujaMinima() | currency:'EUR' }})</label>
-                  <div class="input-group">
+                <div class="bg-indigo-50 p-6 rounded-xl mb-6">
+                  <label class="block mb-2 font-medium">Tu puja (minimo {{ pujaMinima() | currency:'EUR' }})</label>
+                  <div class="flex gap-2">
                     <input
                       type="number"
                       [(ngModel)]="cantidadPuja"
                       [min]="pujaMinima()"
                       step="1"
+                      class="flex-1 py-3 px-3 border border-gray-300 rounded-md text-xl"
                     >
                     <button
-                      class="btn btn-primary"
+                      class="py-3 px-6 border-none rounded-md text-base font-medium cursor-pointer bg-primary text-white disabled:opacity-70 disabled:cursor-not-allowed"
                       (click)="pujar()"
                       [disabled]="enviandoPuja() || cantidadPuja < pujaMinima()"
                     >
@@ -133,45 +140,47 @@ interface Puja {
                     </button>
                   </div>
                   @if (errorPuja()) {
-                    <p class="error-puja">{{ errorPuja() }}</p>
+                    <p class="text-red-600 mt-2 mb-0 text-sm">{{ errorPuja() }}</p>
                   }
                   @if (exitoPuja()) {
-                    <p class="exito-puja">{{ exitoPuja() }}</p>
+                    <p class="text-green-700 mt-2 mb-0 text-sm">{{ exitoPuja() }}</p>
                   }
                 </div>
               } @else {
-                <a routerLink="/login" class="btn btn-primary btn-block">
+                <a routerLink="/login" class="block w-full py-3.5 px-6 border-none rounded-md text-base font-medium text-center no-underline cursor-pointer bg-primary text-white mb-6">
                   Inicia sesion para pujar
                 </a>
               }
             } @else if (subasta()!.estado === 'ADJUDICADA' && subasta()!.ganador) {
-              <div class="ganador-box">
-                <span class="label">Ganador</span>
-                <span class="ganador-nombre">{{ subasta()!.ganador!.nombre }}</span>
-                <span class="ganador-precio">{{ subasta()!.precioActual | currency:'EUR' }}</span>
+              <div class="bg-green-100 p-6 rounded-xl text-center mb-6">
+                <span class="block text-sm text-gray-500">Ganador</span>
+                <span class="block text-2xl font-semibold text-green-700">{{ subasta()!.ganador!.nombre }}</span>
+                <span class="block text-base text-gray-500">{{ subasta()!.precioActual | currency:'EUR' }}</span>
               </div>
             }
 
-            <div class="historial-pujas">
-              <h3>Historial de pujas ({{ subasta()!.pujas?.length || 0 }})</h3>
+            <div class="my-8">
+              <h3 class="m-0 mb-4">Historial de pujas ({{ subasta()!.pujas?.length || 0 }})</h3>
               @if (!subasta()!.pujas || subasta()!.pujas.length === 0) {
-                <p class="no-pujas">Aun no hay pujas</p>
+                <p class="text-gray-400 text-center py-8 bg-gray-50 rounded-lg">Aun no hay pujas</p>
               } @else {
-                <div class="pujas-lista">
+                <div class="max-h-[300px] overflow-y-auto">
                   @for (puja of subasta()!.pujas; track puja.id; let i = $index) {
-                    <div class="puja-item" [class.ganadora]="i === 0 && subasta()!.estado !== 'ACTIVA'">
-                      <div class="puja-info">
-                        <span class="puja-usuario">{{ puja.usuario.nombre }}</span>
-                        <span class="puja-fecha">{{ puja.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <div class="flex justify-between items-center py-3 px-3 border-b border-gray-200"
+                      [class.bg-green-100]="i === 0 && subasta()!.estado !== 'ACTIVA'"
+                      [class.rounded]="i === 0 && subasta()!.estado !== 'ACTIVA'">
+                      <div class="flex flex-col">
+                        <span class="font-medium">{{ puja.usuario.nombre }}</span>
+                        <span class="text-xs text-gray-400">{{ puja.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                       </div>
-                      <span class="puja-cantidad">{{ puja.cantidad | currency:'EUR' }}</span>
+                      <span class="font-semibold text-primary">{{ puja.cantidad | currency:'EUR' }}</span>
                     </div>
                   }
                 </div>
               }
             </div>
 
-            <a routerLink="/subastas" class="btn btn-outline btn-block">
+            <a routerLink="/subastas" class="block w-full py-3.5 px-6 rounded-md text-base font-medium text-center no-underline cursor-pointer bg-white border border-gray-300 text-gray-800">
               Volver a subastas
             </a>
           </div>
@@ -179,371 +188,7 @@ interface Puja {
       }
     </div>
   `,
-  styles: [`
-    .subasta-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .loading, .error {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .error {
-      color: #c00;
-    }
-
-    .subasta-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-    }
-
-    .galeria-section {
-      position: sticky;
-      top: 2rem;
-    }
-
-    .imagen-principal {
-      width: 100%;
-      aspect-ratio: 1;
-      background: #f0f0f0;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .imagen-principal img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .no-imagen {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-    }
-
-    .miniaturas {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      overflow-x: auto;
-    }
-
-    .miniaturas img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 4px;
-      cursor: pointer;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .miniaturas img:hover,
-    .miniaturas img.activa {
-      opacity: 1;
-    }
-
-    .objetos-lote {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid #eee;
-    }
-
-    .objetos-lote h3 {
-      margin: 0 0 1rem;
-      font-size: 1rem;
-    }
-
-    .objetos-lista {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .objeto-item {
-      display: flex;
-      gap: 1rem;
-      padding: 0.75rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .objeto-thumb {
-      width: 50px;
-      height: 50px;
-      border-radius: 4px;
-      overflow: hidden;
-      background: #eee;
-    }
-
-    .objeto-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .objeto-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .objeto-info strong {
-      font-size: 0.875rem;
-    }
-
-    .categoria {
-      font-size: 0.75rem;
-      color: #999;
-    }
-
-    .info-section {
-      padding: 1rem 0;
-    }
-
-    .codigo {
-      font-size: 0.875rem;
-      color: #999;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0.5rem 0 1.5rem;
-      font-size: 2rem;
-    }
-
-    .estado-tiempo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .estado {
-      padding: 6px 16px;
-      border-radius: 4px;
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-
-    .estado-activa {
-      background: #4caf50;
-      color: white;
-    }
-
-    .estado-programada {
-      background: #ff9800;
-      color: white;
-    }
-
-    .estado-cerrada, .estado-adjudicada {
-      background: #9e9e9e;
-      color: white;
-    }
-
-    .tiempo-restante {
-      color: #e53935;
-      font-weight: 500;
-    }
-
-    .precios-box {
-      background: #f9f9f9;
-      padding: 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    .precio-actual {
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .precio-actual .label {
-      display: block;
-      font-size: 0.875rem;
-      color: #666;
-    }
-
-    .precio-actual .valor {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #667eea;
-    }
-
-    .precio-salida {
-      text-align: center;
-      font-size: 0.875rem;
-      color: #999;
-    }
-
-    .pujar-form {
-      background: #f0f4ff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    .pujar-form label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .input-group input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1.25rem;
-    }
-
-    .error-puja {
-      color: #c00;
-      margin: 0.5rem 0 0;
-      font-size: 0.875rem;
-    }
-
-    .exito-puja {
-      color: #2e7d32;
-      margin: 0.5rem 0 0;
-      font-size: 0.875rem;
-    }
-
-    .ganador-box {
-      background: #e8f5e9;
-      padding: 1.5rem;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .ganador-box .label {
-      display: block;
-      font-size: 0.875rem;
-      color: #666;
-    }
-
-    .ganador-nombre {
-      display: block;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #2e7d32;
-    }
-
-    .ganador-precio {
-      display: block;
-      font-size: 1rem;
-      color: #666;
-    }
-
-    .historial-pujas {
-      margin: 2rem 0;
-    }
-
-    .historial-pujas h3 {
-      margin: 0 0 1rem;
-    }
-
-    .no-pujas {
-      color: #999;
-      text-align: center;
-      padding: 2rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .pujas-lista {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .puja-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .puja-item.ganadora {
-      background: #e8f5e9;
-      border-radius: 4px;
-    }
-
-    .puja-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .puja-usuario {
-      font-weight: 500;
-    }
-
-    .puja-fecha {
-      font-size: 0.75rem;
-      color: #999;
-    }
-
-    .puja-cantidad {
-      font-weight: 600;
-      color: #667eea;
-    }
-
-    .btn {
-      padding: 0.875rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn-block {
-      display: block;
-      width: 100%;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid #ddd;
-      color: #333;
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 900px) {
-      .subasta-content {
-        grid-template-columns: 1fr;
-      }
-
-      .galeria-section {
-        position: static;
-      }
-    }
-  `]
+  styles: []
 })
 export class SubastaDetalleComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);

@@ -1,1 +1,425 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "primeicons/primeicons.css";
+
+/* PrimeNG Theme Customization */
+:root {
+  --p-primary-50: #eef2ff;
+  --p-primary-100: #e0e7ff;
+  --p-primary-200: #c7d2fe;
+  --p-primary-300: #a5b4fc;
+  --p-primary-400: #818cf8;
+  --p-primary-500: #667eea;
+  --p-primary-600: #5a6fd6;
+  --p-primary-700: #4f46e5;
+  --p-primary-800: #4338ca;
+  --p-primary-900: #3730a3;
+  --p-primary-950: #1e1b4b;
+
+  /* Surface colors */
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f9fafb;
+  --p-surface-100: #f3f4f6;
+  --p-surface-200: #e5e7eb;
+  --p-surface-300: #d1d5db;
+  --p-surface-400: #9ca3af;
+  --p-surface-500: #6b7280;
+  --p-surface-600: #4b5563;
+  --p-surface-700: #374151;
+  --p-surface-800: #1f2937;
+  --p-surface-900: #111827;
+  --p-surface-950: #030712;
+
+  /* Content colors */
+  --p-content-border-radius: 0.5rem;
+}
+
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Angular component host elements need display: block */
+app-header,
+app-footer,
+app-home,
+app-galeria,
+app-login,
+app-registro,
+app-recuperar-password,
+app-reset-password,
+app-verificar-email,
+app-objeto-detalle,
+app-reportar-perdido,
+app-mis-objetos,
+app-perfil,
+app-subastas-list,
+app-subasta-detalle,
+app-admin-dashboard,
+app-objetos-admin,
+app-objeto-form,
+app-solicitudes-admin,
+app-coincidencias-admin,
+app-almacen-admin,
+app-lotes-admin,
+app-subastas-admin,
+app-usuarios-admin,
+app-estadisticas-admin,
+app-configuracion-admin {
+  display: block;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Custom utility classes for gradients */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Form base styles - exclude PrimeNG inputs */
+input:not([class*="p-"]),
+select:not([class*="p-"]),
+textarea:not([class*="p-"]) {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+input:not([class*="p-"]):focus,
+select:not([class*="p-"]):focus,
+textarea:not([class*="p-"]):focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Button component classes */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+}
+
+.btn-outline:hover {
+  background: #667eea;
+  color: white;
+}
+
+.btn-success {
+  background: #27ae60;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover {
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.btn-warning {
+  background: #ff9800;
+  color: white;
+  border: none;
+}
+
+.btn-warning:hover {
+  opacity: 0.9;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Card component */
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Status badges */
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-gray {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+/* PrimeNG Table Customization */
+.p-datatable {
+  .p-datatable-header {
+    background: transparent;
+    border: none;
+    padding: 1rem 0;
+  }
+
+  .p-datatable-thead > tr > th {
+    background: #f9fafb;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.875rem 1rem;
+    border-color: #e5e7eb;
+  }
+
+  .p-datatable-tbody > tr > td {
+    padding: 0.875rem 1rem;
+    border-color: #f3f4f6;
+  }
+
+  .p-datatable-tbody > tr:hover {
+    background: #f9fafb;
+  }
+}
+
+/* PrimeNG Dialog Customization */
+.p-dialog {
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  .p-dialog-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  .p-dialog-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+}
+
+/* PrimeNG Button Customization */
+.p-button {
+  font-weight: 500;
+  border-radius: 0.5rem;
+
+  &.p-button-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #5a6fd6 0%, #6b4190 100%);
+    }
+  }
+}
+
+/* PrimeNG Toast Customization */
+.p-toast {
+  .p-toast-message {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* PrimeNG Dropdown/Select Customization */
+.p-select, .p-dropdown {
+  border-radius: 0.5rem;
+
+  &:not(.p-disabled):hover {
+    border-color: #667eea;
+  }
+
+  &:not(.p-disabled).p-focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+}
+
+/* PrimeNG InputText Customization */
+.p-inputtext {
+  border-radius: 0.5rem;
+
+  &:enabled:hover {
+    border-color: #667eea;
+  }
+
+  &:enabled:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+}
+
+/* PrimeNG Calendar Customization */
+.p-datepicker {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* PrimeNG Tag/Badge Customization */
+.p-tag {
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* PrimeNG Paginator Customization */
+.p-paginator {
+  background: transparent;
+  border: none;
+  padding: 1rem 0;
+
+  .p-paginator-page.p-highlight {
+    background: #667eea;
+    color: white;
+  }
+}
+
+/* PrimeNG Confirm Dialog */
+.p-confirmdialog {
+  .p-dialog-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+/* PrimeNG FileUpload */
+.p-fileupload {
+  .p-fileupload-buttonbar {
+    background: transparent;
+    border: none;
+    padding: 0 0 1rem;
+  }
+
+  .p-fileupload-content {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    background: #f9fafb;
+
+    &:hover {
+      border-color: #667eea;
+    }
+  }
+}

@@ -24,27 +24,30 @@ interface Subasta {
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="subastas-container">
-      <div class="header">
-        <h1>Subastas</h1>
-        <p>Objetos perdidos no reclamados en mas de 2 anos</p>
+    <div class="max-w-6xl mx-auto p-8">
+      <div class="mb-8">
+        <h1 class="m-0 mb-2">Subastas</h1>
+        <p class="text-gray-500 m-0">Objetos perdidos no reclamados en mas de 2 anos</p>
       </div>
 
-      <div class="filtros">
+      <div class="flex flex-wrap gap-2 mb-8">
         <button
-          [class.active]="filtroActivo() === 'activas'"
+          class="px-6 py-2 border rounded-full cursor-pointer text-sm transition-all duration-200"
+          [class]="filtroActivo() === 'activas' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:border-primary'"
           (click)="filtrar('activas')"
         >
           Activas
         </button>
         <button
-          [class.active]="filtroActivo() === 'proximas'"
+          class="px-6 py-2 border rounded-full cursor-pointer text-sm transition-all duration-200"
+          [class]="filtroActivo() === 'proximas' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:border-primary'"
           (click)="filtrar('proximas')"
         >
           Proximas
         </button>
         <button
-          [class.active]="filtroActivo() === 'finalizadas'"
+          class="px-6 py-2 border rounded-full cursor-pointer text-sm transition-all duration-200"
+          [class]="filtroActivo() === 'finalizadas' ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:border-primary'"
           (click)="filtrar('finalizadas')"
         >
           Finalizadas
@@ -52,66 +55,71 @@ interface Subasta {
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando subastas...</div>
+        <div class="text-center py-12 text-gray-500">Cargando subastas...</div>
       } @else if (error()) {
-        <div class="error">{{ error() }}</div>
+        <div class="text-center py-12 text-red-600">{{ error() }}</div>
       } @else if (subastas().length === 0) {
-        <div class="empty-state">
+        <div class="text-center py-16 bg-gray-50 rounded-lg text-gray-500">
           <p>No hay subastas {{ filtroActivo() }} en este momento</p>
         </div>
       } @else {
-        <div class="subastas-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (subasta of subastas(); track subasta.id) {
-            <div class="subasta-card">
-              <div class="subasta-imagen">
+            <div class="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+              <div class="relative h-[200px] bg-gray-100">
                 @if (subasta.lote.objetos.length > 0 && subasta.lote.objetos[0].fotos?.length > 0) {
-                  <img [src]="subasta.lote.objetos[0].fotos[0].thumbnailUrl" [alt]="subasta.lote.nombre">
+                  <img [src]="subasta.lote.objetos[0].fotos[0].thumbnailUrl" [alt]="subasta.lote.nombre" class="w-full h-full object-cover">
                 } @else {
-                  <div class="no-imagen">
+                  <div class="h-full flex items-center justify-center text-gray-400 text-xl">
                     <span>{{ subasta.lote.objetos.length }} objeto(s)</span>
                   </div>
                 }
-                <span class="estado-badge" [class]="'estado-' + subasta.estado.toLowerCase()">
+                <span class="absolute top-4 right-4 px-3 py-1 rounded text-xs font-semibold uppercase"
+                  [ngClass]="{
+                    'bg-green-500 text-white': subasta.estado.toLowerCase() === 'activa',
+                    'bg-orange-500 text-white': subasta.estado.toLowerCase() === 'programada',
+                    'bg-gray-500 text-white': subasta.estado.toLowerCase() === 'cerrada' || subasta.estado.toLowerCase() === 'adjudicada'
+                  }">
                   {{ getEstadoLabel(subasta.estado) }}
                 </span>
               </div>
 
-              <div class="subasta-info">
-                <span class="codigo">Lote {{ subasta.lote.codigo }}</span>
-                <h3>{{ subasta.lote.nombre }}</h3>
+              <div class="p-6">
+                <span class="text-xs text-gray-400 uppercase">Lote {{ subasta.lote.codigo }}</span>
+                <h3 class="mt-2 mb-4 text-xl">{{ subasta.lote.nombre }}</h3>
 
-                <div class="precios">
-                  <div class="precio-actual">
-                    <span class="label">Puja actual</span>
-                    <span class="valor">{{ subasta.precioActual | currency:'EUR' }}</span>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div class="text-center py-3 bg-gray-50 rounded-lg">
+                    <span class="block text-xs text-gray-400 mb-1">Puja actual</span>
+                    <span class="text-xl font-semibold text-primary">{{ subasta.precioActual | currency:'EUR' }}</span>
                   </div>
-                  <div class="precio-salida">
-                    <span class="label">Precio salida</span>
-                    <span class="valor">{{ subasta.precioSalida | currency:'EUR' }}</span>
+                  <div class="text-center py-3 bg-gray-50 rounded-lg">
+                    <span class="block text-xs text-gray-400 mb-1">Precio salida</span>
+                    <span class="text-base text-gray-500">{{ subasta.precioSalida | currency:'EUR' }}</span>
                   </div>
                 </div>
 
-                <div class="tiempo">
+                <div class="text-sm mb-3">
                   @if (subasta.estado === 'ACTIVA') {
-                    <span class="tiempo-restante">
+                    <span class="text-red-600">
                       Termina: {{ subasta.fechaFin | date:'dd/MM/yyyy HH:mm' }}
                     </span>
                   } @else if (subasta.estado === 'PROGRAMADA') {
-                    <span class="tiempo-inicio">
+                    <span class="text-warning">
                       Inicia: {{ subasta.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
                     </span>
                   } @else {
-                    <span class="tiempo-fin">
+                    <span class="text-gray-400">
                       Finalizo: {{ subasta.fechaFin | date:'dd/MM/yyyy' }}
                     </span>
                   }
                 </div>
 
-                <div class="pujas-count">
+                <div class="text-sm text-gray-500 mb-4">
                   {{ subasta.totalPujas }} puja(s)
                 </div>
 
-                <a [routerLink]="['/subastas', subasta.id]" class="btn btn-primary">
+                <a [routerLink]="['/subastas', subasta.id]" class="block w-full py-3 border-none rounded-md text-base font-medium text-center no-underline cursor-pointer bg-primary text-white hover:bg-primary-dark">
                   @if (subasta.estado === 'ACTIVA') {
                     Pujar ahora
                   } @else {
@@ -125,238 +133,7 @@ interface Subasta {
       }
     </div>
   `,
-  styles: [`
-    .subastas-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .header {
-      margin-bottom: 2rem;
-    }
-
-    .header h1 {
-      margin: 0 0 0.5rem;
-    }
-
-    .header p {
-      color: #666;
-      margin: 0;
-    }
-
-    .filtros {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .filtros button {
-      padding: 0.5rem 1.5rem;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: all 0.2s;
-    }
-
-    .filtros button:hover {
-      border-color: #667eea;
-    }
-
-    .filtros button.active {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-
-    .loading, .error {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .error {
-      color: #c00;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      color: #666;
-    }
-
-    .subastas-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .subasta-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .subasta-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    .subasta-imagen {
-      position: relative;
-      height: 200px;
-      background: #f0f0f0;
-    }
-
-    .subasta-imagen img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .no-imagen {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-      font-size: 1.25rem;
-    }
-
-    .estado-badge {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .estado-activa {
-      background: #4caf50;
-      color: white;
-    }
-
-    .estado-programada {
-      background: #ff9800;
-      color: white;
-    }
-
-    .estado-cerrada, .estado-adjudicada {
-      background: #9e9e9e;
-      color: white;
-    }
-
-    .subasta-info {
-      padding: 1.5rem;
-    }
-
-    .codigo {
-      font-size: 0.75rem;
-      color: #999;
-      text-transform: uppercase;
-    }
-
-    h3 {
-      margin: 0.5rem 0 1rem;
-      font-size: 1.25rem;
-    }
-
-    .precios {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .precio-actual, .precio-salida {
-      text-align: center;
-      padding: 0.75rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .label {
-      display: block;
-      font-size: 0.75rem;
-      color: #999;
-      margin-bottom: 0.25rem;
-    }
-
-    .precio-actual .valor {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #667eea;
-    }
-
-    .precio-salida .valor {
-      font-size: 1rem;
-      color: #666;
-    }
-
-    .tiempo {
-      font-size: 0.875rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .tiempo-restante {
-      color: #e53935;
-    }
-
-    .tiempo-inicio {
-      color: #ff9800;
-    }
-
-    .tiempo-fin {
-      color: #999;
-    }
-
-    .pujas-count {
-      font-size: 0.875rem;
-      color: #666;
-      margin-bottom: 1rem;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #5a6fd6;
-    }
-
-    @media (max-width: 600px) {
-      .subastas-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .filtros {
-        flex-wrap: wrap;
-      }
-    }
-  `]
+  styles: []
 })
 export class SubastasListComponent implements OnInit {
   private api = inject(ApiService);
