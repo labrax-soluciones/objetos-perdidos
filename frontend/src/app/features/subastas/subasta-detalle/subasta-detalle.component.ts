@@ -160,7 +160,7 @@ interface Puja {
             }
 
             <div class="my-8">
-              <h3 class="m-0 mb-4">Historial de pujas ({{ subasta()!.pujas?.length || 0 }})</h3>
+              <h3 class="m-0 mb-4">Historial de pujas ({{ subasta()!.pujas.length || 0 }})</h3>
               @if (!subasta()!.pujas || subasta()!.pujas.length === 0) {
                 <p class="text-gray-400 text-center py-8 bg-gray-50 rounded-lg">Aun no hay pujas</p>
               } @else {
